@@ -12,54 +12,57 @@ with date AND time** (`YYYY-MM-DD HH:MM TZ`). Keep it terse. (Entries before
 
 ---
 
-## Current status (2026-07-25)
+## Current status (2026-07-25 20:02 JDT)
 
-Product = a cost-saving **model cascade** for commercial "build me X" web-app
-generation; the **gate** is the do-or-die backbone (D14). Vertical = single-file
-browser games (D13). Gate Layer 0 (runtime floor) and Layer 1 (functional, via
-the `window.__wordle` contract) are built and running in `gate/`; the gate is
-proven to catch a logically-broken game the floor false-accepts.
-Phase 2 kill check (first cut) run: gate surfaced BOTH error types on real
-output — false-reject from low contract conformance (3/6), false-accept from a
-coverage gap (dead game passes). Gate not yet at target.
-**Validated core loop, on TWO verticals (Wordle + 2048):** constrained
-generation (D16/D17) — model fills a narrow logic slot in a scaffold we own →
-inject → gate. Both: conformance 5/5, logic 5/5, buggy control correctly failed.
-The gate backbone works and the recipe generalizes.
-Recipe proven on THREE verticals + thin cascade wired on the gate: cascade is
-81% cheaper than always-Opus at equal quality by defaulting cheap behind the
-gate. Escalation rarely/never fires (cheap tier is reliable on well-specified
-logic). Net: **the product ≈ one cheap model + a trustworthy gate; escalation is
-insurance.**
-**Latest (18:24 JDT): the oracle-verification design is validated and Q17 is
-closed.** Design: cheap **tier-diverse** ensemble → unanimous ⇒ accept → ANY
-disagreement escalates that case to the strong tier (never majority-vote).
-Evidence across two adversarial stress tests: **83 inputs, 55 oracle errors, 0
-unanimous-wrong, 100% of errors flagged**, strong tier 100% correct. Flag rate
-self-adjusts to spec difficulty (3% canonical → 50% adversarial), so cost tracks
-need automatically (D24).
-**All major research questions are now closed (18:57 JDT).** False accepts are
-0/15 with coverage-aware gating; oracle errors are 100% flagged by tier-diverse
-disagreement; the scope boundary is mapped (logic-verifiable = correctness
-decision, content/UI = floor only); operations are specified in
-`docs/gate-operations.md`. Repo is prepped for GitHub (`.gitignore`,
-`.env.example`, `README.md`, proprietary `LICENSE`).
-**Engineering pass done (19:24 JDT):** the three gaps that blocked "ready" are
-addressed — sandboxed execution (D33, exfiltration probe blocked 4/4),
-consolidation into `gate.core` with one `verify()` entry point (D32), and
-auto-vertical generation proven end-to-end on 1/3 requests (D34). Repo is on
-GitHub (private, `main`, proprietary © Nisim Levi).
-**Second engineering pass done (19:45 JDT):** spec precision + ensemble oracle
-(auto-verticals accept correct code 3/3, D35), ops doc implemented as
-telemetry + policy code (D37), and volume validation answering Q5 (30/30,
-CI [72%,100%]). Also corrected my own unsafe drop-on-dispute design (D36).
-**Q22 and Q23 closed (19:56 JDT):** disputed cases are re-voted per pinned case
-and recovered (D38); bug-catching is now measured by **mutation score** on
-execution-validated mutants — **100%, 15/15, zero survivors** on the production
-batteries (D39).
-**Next action:** Q24 — score an AUTO-generated battery the same way (the
-hand-written ones are proven; the auto ones that would serve unanticipated
-requests are not). Then commit this batch.
+A point-in-time snapshot — replaced wholesale on each update. The chronological
+record lives in *Milestones*; do not append history here.
+
+**What the project is.** A verification **gate** for LLM-generated code, plus a
+thin cheap-first cascade on top. The founding question was whether a strong model
+should route work to cheaper ones; the measured answer is that the merit sits in
+the **verifier, not the router** — a trustworthy gate is what makes defaulting to
+a cheap model safe, and that is where the ~81% saving vs always-Opus came from.
+
+**Where the code is.** Repo `nisimcode/Turing` (private, branch `main`,
+proprietary © Nisim Levi), pushed through commit `130d8e3`, working tree clean.
+`gate/core/` is the module — `verify(artifact, functional=...) -> Verdict`, with
+sandbox, oracle, mutation, telemetry and policy alongside. Entry point:
+`gate/verify_cli.py`.
+
+**What is proven (with numbers).**
+
+| Claim | Evidence |
+|---|---|
+| The gate catches faults nobody here thought of | mutation score **100%**, 15/15 execution-validated mutants killed |
+| False accepts are eliminated for realistic bugs | **0/15** with coverage-aware gating (enumerate small domains, fuzz large) |
+| Bad oracles are detectable without ground truth | **55/55** oracle errors flagged by tier-diverse disagreement; 0 unanimous-wrong in 83 adversarial inputs |
+| The cheap tier suffices behind the gate | pass@1 **30/30** across wordle, game2048, billsplit (Wilson 95% CI [72%, 100%]) |
+| The recipe generalizes | 4 hand-built verticals + auto-generated verticals accepting correct code 3/3 |
+| Untrusted code is contained | exfiltration probe blocked 4/4 (fetch, pixel, beacon, XHR) |
+
+**Scope boundary.** Strong guarantees only where the critical logic is a
+checkable pure function (games, calculators, validators). Content/UI is
+**floor-only**: objective checks caught 5/5 structural defects but 2/2 subjective
+ones passed. Sell those as *working, accessible, complete* — never as *good*.
+
+**Readiness ≈ 70%.** Research is done; engineering has a spine. Not yet built:
+scaffold library at scale, human-review UI, real customer traffic, anything
+beyond single-file HTML/JS.
+
+**Standing caveats.** Sample sizes are small throughout (directional, not proof).
+The gate is a correctness check, **not a security boundary** — an arbitrary
+trigger evades any finite battery. Docker is absent on this host, so isolation
+covers browser-executed content only; a container is required before artifacts
+gain build steps, servers or native deps (`npm install` runs arbitrary code).
+Recurring lesson: the concepts have held up, but **harness bugs are the frequent
+failure** — three today (floor `has_dom`, fence-matching regex, mutation hook)
+each briefly masqueraded as a real finding. Verify surprising results before
+believing them.
+
+**Next action.** Q24 — mutation-score an **auto-generated** battery. The
+hand-written batteries score 100%; the auto-generated ones, which would serve
+unanticipated requests, are unscored. After that: Q21 (spec-ambiguity false
+rejects) and productization.
 
 ---
 
@@ -375,7 +378,7 @@ requests are not). Then commit this batch.
 | Q4 | Build vs no-build apps for the first gate (recommend no-build/single-file first)? | Phase 1 | ANSWERED (2026-07-25): no-build/single-file first (D13). |
 | Q5 | Cheap tier's real pass@k per vertical (decides if the cascade pays). | — | ANSWERED (2026-07-25 19:45 JDT): 10/10 on each of wordle, game2048, billsplit via constrained generation — pass@1 100%, Wilson 95% CI [72%, 100%]. Escalation is rarely-fired insurance for these verticals. |
 | Q6 | Can an LLM judge reliably score the *subjective* residual for real builds? | Phase 4 (fundamentally limited) | OPEN |
-| Q7 | Does the API key have access to Sonnet 5 and Fable 5 (Fable needs 30-day retention)? | Before Phase 6 | OPEN |
+| Q7 | Does the API key have access to Sonnet 5 and Fable 5 (Fable needs 30-day retention)? | Before Phase 6 | PARTIAL (2026-07-25 20:02 JDT): **Sonnet 5 confirmed working** — used throughout the oracle ensemble, both stress tests and volume validation. **Fable 5 never attempted**; it is pricier and needs 30-day retention, and nothing so far has needed a tier above Opus. |
 | Q18 | Human spot-check + flag-rate monitoring for the residual unanimous-wrong risk. | Before unsupervised production use | ANSWERED (2026-07-25 18:57 JDT): spec written — `docs/gate-operations.md` (D31). Residual risk itself remains irreducible; mitigated by one-time human review per new vertical. |
 | Q17 | Does "unanimous ⇒ correct" hold when even the STRONG models revert? | Before auto-gates go live unsupervised | ANSWERED (2026-07-25 18:24 JDT): unanimity did NOT break — 0 unanimous-wrong across 32 hardest-yet inputs (83 cumulative), all 34 errors flagged, strong tier 100%. Safety rests on the strong tier being reliable (D23) → residual risk moved to Q18. |
 | Q16 | Correlated (unanimous-wrong) oracle failure — the residual fatal risk. | Before auto-gates go live | LARGELY ANSWERED (2026-07-25 18:18 JDT): adversarial specs produced 21 errors, **0 unanimous-wrong**; disagreement flagged 100%. BUT correlated failure IS real *within* a tier (3× Haiku wrong together) → don't vote, escalate (D21); diversify tiers (D22). Residual risk → Q17. |
@@ -422,29 +425,50 @@ requests are not). Then commit this batch.
 
 ## Artifact / file index
 
-*(layout as of the 2026-07-25 18:45 JDT cleanup)*
+*(layout as of 2026-07-25 20:02 JDT, commit `130d8e3`)*
 
 **`docs/`**
-- `plan.md` — original concept (superseded).
-- `plan-revised.md` — critique-driven strategy revision.
+- `PROJECT-LOG.md` — this file; the single record.
+- `gate-operations.md` — human review, monitoring, failure handling (now also
+  implemented in `core/telemetry.py` + `core/policy.py`).
 - `implementation-plan.md` — gate-first phased plan.
-- `PROJECT-LOG.md` — this file.
+- `plan.md`, `plan-revised.md` — original concept and its critique (superseded).
 
-**`gate/`** — the product. Core: `browser_gate.py` (runtime floor + functional
-hook runner), `contract.md`, `scaffold/` (4 scaffolds we own), `fixtures/`
-(correct / broken / hook-only Wordles), and one `*_spec.py` per vertical
-(`wordle_spec`, `game2048_spec`, `billsplit_spec`, `calc_spec`).
-Generation + cascade: `constrained_gen.py`, `constrained_gen2048.py`,
-`constrained_gen_billsplit.py`, `run_wordle_gate.py`, `run_cascade_calc.py`.
-Verification methodology (validated, feeds the production gate):
-`auto_gate.py`, `oracle_consensus.py`, `stress_consensus.py`,
-`stress_unanimous.py`, `subtlety_ladder.py`, `fuzz_gate.py`, `probe_hook.py`.
+**`gate/core/`** — *the module.* Start here.
+- `verify.py` — the entry point: `verify(artifact, functional=...) -> Verdict`.
+- `sandbox.py` — isolated execution (ephemeral loopback origin, all outbound
+  requests blocked, fresh context, timeouts).
+- `checks.py` — the runtime floor.
+- `oracle.py` — draft battery → ensemble-verify on pinned inputs → resolve
+  disputes per case → unresolved go to review.
+- `mutation.py` — execution-validated mutants + mutation scoring.
+- `telemetry.py` / `policy.py` — JSONL record + alarms; human-review triggers.
+- `config.py` — key loading, tiers, pricing, limits, `Verdict`.
+- `llm.py` — model calls, cost accounting, fenced-block extraction.
+
+**`gate/`** — verticals and runners.
+- Per vertical: a scaffold in `scaffold/` + a `*_spec.py` (`wordle`, `game2048`,
+  `billsplit`, `calc`, plus `content_spec.py` for pages).
+- `verify_cli.py` — CLI. `constrained_gen*.py` — generate a logic slot and gate it.
+- Measurement: `mutation_check.py`, `volume_check.py`, `auto_vertical.py`,
+  `subtlety_ladder.py`, `fuzz_gate.py`, `coverage_gate.py`, `oracle_consensus.py`,
+  `stress_consensus.py`, `stress_unanimous.py`, `auto_gate.py`,
+  `run_cascade_calc.py`, `run_content_gate.py`, `run_wordle_gate.py`.
+- `fixtures/` — correct/broken/hook-only Wordles, `exfiltrate.html` (sandbox
+  probe), `content/` (landing-page defect ladder).
+- `browser_gate.py` — earlier standalone runner, superseded by `core/`.
+- `telemetry.jsonl` — runtime record; gitignored.
 
 **`archive/`** — concluded evidence trail; see `archive/README.md`.
-`archive/eval/` (the exploration phase) and `archive/gate-deadends/`
-(`kill_check.py`, `repair_conformance.py`).
+`archive/eval/` (the exploration phase) and `archive/gate-deadends/`.
 
-**`.env`** — `CLAUDE_API_KEY`. Keep out of any repo.
+**Root** — `README.md`, `LICENSE` (proprietary), `.gitignore`, `.env.example`.
+`.env` holds `CLAUDE_API_KEY` and is gitignored — never commit it.
+
+**How to run anything:** `uv` only (not bare `python`; the Windows Store alias
+breaks it). Example:
+`cd gate && uv run --with anthropic --with playwright --with pillow python mutation_check.py`
+One-time: `uv run --with playwright python -m playwright install chromium`.
 
 > Cleanup 2026-07-25 18:45 JDT: deleted 42 `__pycache__` artifacts and 29
 > generated HTML outputs (`gate/corpus/`, `eval/artifacts/` — regenerable);
