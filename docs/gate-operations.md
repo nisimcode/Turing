@@ -24,9 +24,17 @@ JSON manifest. It requires no model, API key, account, or hosted service:
 
 ```bash
 uv run turing-gate install-browser
+uv run turing-gate doctor
 uv run turing-gate demo
 uv run turing-gate verify turing.json
 ```
+
+On Linux, `turing-gate install-browser --with-deps` also installs Playwright's
+required operating-system libraries. `doctor` makes no model/API calls and
+tests Python/package discovery, the local telemetry directory, loopback
+binding, Playwright, the Chromium executable, and an actual JavaScript-capable
+browser launch. It returns exit `2` with a repair command when setup is
+incomplete; `--json` is stable machine-readable output.
 
 The manifest binds one self-contained HTML artifact to a dotted browser hook,
 machine-readable argument domain, and explicit input/expected-output cases.
@@ -42,6 +50,11 @@ manifest or local browser setup is incomplete.
 The built wheel excludes model-assisted auto-vertical generation and research
 runners. Those remain source-repository experiments and must not be presented
 as part of the dependable public workflow.
+
+`.github/workflows/clean-room.yml` builds the wheel and exercises this public
+path on fresh Windows and Linux GitHub-hosted runners for every push and pull
+request. It is a clean-environment installation proxy only. It does not replace
+unassisted onboarding or count toward the 20/5/3 outside-adoption target.
 
 ---
 

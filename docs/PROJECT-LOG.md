@@ -12,7 +12,7 @@ with date AND time** (`YYYY-MM-DD HH:MM TZ`). Keep it terse. (Entries before
 
 ---
 
-## Current status (2026-07-25 23:16 JDT)
+## Current status (2026-07-25 23:25 JDT)
 
 A point-in-time snapshot — replaced wholesale on each update. The chronological
 record lives in *Milestones*; do not append history here.
@@ -24,7 +24,8 @@ requires no API key or hosted service. The earlier cascade, oracle, and
 auto-vertical work remains measured research, not the public product surface.
 
 **Where the code is.** Public repo `nisimcode/Turing` (branch `main`), licensed
-Apache 2.0 with release `v0.1.0`. `gate/cli.py` exposes the packaged
+Apache 2.0 with release `v0.1.0` and a locally validated `v0.1.1` candidate.
+`gate/cli.py` exposes the packaged
 `turing-gate` command; `gate/core/manifest.py` binds a local artifact, browser
 hook, domain schema, and exact cases; `gate/core/verify.py` and `sandbox.py`
 provide the fail-closed runtime. The wheel includes only the CLI, core, and
@@ -40,6 +41,7 @@ are excluded from the installed wheel.
 | The public tool is independently installable | `uv build --no-sources` produced sdist + wheel; isolated `uvx --from <wheel> turing-gate demo` passed 3/3 |
 | The tagged release is publicly fetchable | refreshed `uvx --from git+https://github.com/nisimcode/Turing@v0.1.0 turing-gate demo` resolved public commit `0c04f61` and caught 3/3 defects |
 | The locked public/runtime Python dependency set is clean | experimental `uv audit`: 20 packages checked, no known vulnerabilities or adverse project statuses |
+| Setup failures are locally diagnosable | `turing-gate doctor`: 8/8 healthy-environment checks PASS; forced missing-browser path returns not-ready with exact repair command |
 | The gate catches faults nobody here thought of | mutation score **100%**, 15/15 execution-validated mutants killed |
 | Auto-generated batteries have measured fault coverage | Caesar auto-battery mutation score **100%**, 5/5 execution-validated mutants killed over 498 independent probes |
 | Undefined inputs do not become false rejects | Q21 regression withheld 2/2 out-of-domain Luhn cases; correct implementation PASS, 0 false rejects |
@@ -55,12 +57,14 @@ checkable pure function (games, calculators, validators). Content/UI is
 **floor-only**: objective checks caught 5/5 structural defects but 2/2 subjective
 ones passed. Sell those as *working, accessible, complete* — never as *good*.
 
-**Adoption-release engineering ≈ 97%; adoption evidence = 0/20 developers,
+**Adoption-release engineering ≈ 98%; adoption evidence = 0/20 developers,
 0/5 user-owned artifacts, 0/3 repeat users.** Apache licensing, local package,
 no-API manifest, three demonstrations, isolated-wheel smoke test, unified
 zero-credit regression, public repository, and tagged GitHub release are
-complete. Still required: verify cold onboarding on a second machine and
-recruit/observe outside users. Q25’s prepared human sample
+complete. `doctor` and clean Windows/Linux package CI are implemented locally;
+the first hosted matrix result is pending. Hosted runners are only a setup
+proxy: unassisted onboarding and outside adoption remain unproven. Q25’s
+prepared human sample
 now applies only to the experimental auto-vertical path and does not block the
 deterministic public verifier.
 
@@ -74,9 +78,10 @@ failure** — three today (floor `has_dom`, fence-matching regex, mutation hook)
 each briefly masqueraded as a real finding. Verify surprising results before
 believing them.
 
-**Next action.** Test the tagged README flow from a clean machine/account, then
-begin the 30-day 20/5/3 adoption test. Do not add more gate research until real
-usage identifies a concrete failure or onboarding obstacle.
+**Next action.** Push the `v0.1.1` candidate, require fresh Windows and Linux
+hosted runners to pass install → doctor → demos → user example, then tag the
+validated state. After that, expand the correct/broken artifact benchmark while
+human recruitment is deferred. Hosted CI does not count toward 20/5/3.
 
 ---
 
@@ -84,6 +89,7 @@ usage identifies a concrete failure or onboarding obstacle.
 
 | # | Date/time | Decision |
 |---|------|----------|
+| D56 | 2026-07-25 23:25 JDT | **Defer the difficult human-adoption step without pretending automation replaces it.** Use fresh Windows/Linux GitHub-hosted runners as the reproducible cold-environment proxy, and add a zero-API `turing-gate doctor` that checks Python/package identity, local-state writes, loopback binding, Playwright, Chromium presence, and a real browser launch. CI must build and install the wheel, diagnose setup, catch 3/3 demos, and accept the user example. These runs improve distribution confidence but count as 0 developers, 0 own artifacts, and 0 repeat users in the 20/5/3 test. |
 | D55 | 2026-07-25 23:05 JDT | **Pivot from proprietary research prototype to an Apache-2.0, adoption-first local developer tool.** The dependable product surface is `turing-gate verify turing.json`: a versioned deterministic manifest, directory-confined self-contained HTML artifact, dotted browser hook, optional domain schema, and exact cases. It needs no model/API key; writes only local `.turing/telemetry.jsonl`; and returns distinct pass/reject/setup exit codes. The wheel excludes auto-vertical and experiment runners. Three bundled known-bad demos catch Wordle duplicates, negative division, and four-vector exfiltration. Success is now 20 outside verifications / 5 own artifacts / 3 repeat users in 30 days, not more internal research. Supersedes D29’s proprietary licence and makes Q25 non-blocking for the public path. |
 | D54 | 2026-07-25 22:39 JDT | **Ignore rules must protect machine state without hiding legitimate project artifacts.** Reorganized `.gitignore` into secrets, Python, Node, workspace/tool caches, generated model/runtime output, browser artifacts, editor/OS state, and Repomix bundles. Added local agent directories, Python analysis/coverage/build caches, package-manager logs, and generic workspace caches; generalized `.llm-cache/` to every location. Replaced broad `*.zip` with Playwright-specific `trace.zip` so a legitimate archive remains trackable. Verified all generated paths are ignored while `.env.example`, `.repomixignore`, `package.json`, and `pnpm-lock.yaml` remain trackable. |
 | D53 | 2026-07-25 22:37 JDT | **Repository snapshots use a pinned, local Repomix with explicit secret/context exclusions.** Added private Node tooling with Repomix 1.17.0 pinned in `package.json`/`pnpm-lock.yaml`; `.repomixignore` excludes `.env`, machine-local state, dependencies/caches, generated review/runtime/Q26 data, the concluded archive, bundles, and lockfile noise while retaining `.env.example` and active source. Default sensitive-data scanning stays on. A real pack included 45 intended files and excluded every protected class. `pnpm audit` reports 0 high/critical and one moderate transitive Windows `serve-static` advisory in `@hono/node-server` via the optional MCP SDK; no compatible 1.x patch exists and the pack-only workflow does not start that server. |
@@ -144,6 +150,14 @@ usage identifies a concrete failure or onboarding obstacle.
 
 ## Milestones completed
 
+- **2026-07-25 23:25 JDT** — **Local v0.1.1 distribution hardening
+  completed.** Added `turing-gate doctor` with human/JSON output and setup exit
+  code `2`; healthy Windows checks pass 8/8 and a forced missing Chromium path
+  fails with the repair command. Added a no-cache Windows/Linux hosted-runner
+  workflow that builds the wheel, installs Chromium (plus Linux system deps),
+  runs doctor, catches 3/3 demos, and accepts the shipping example. The exact
+  wheel and full zero-credit regression pass locally; 20 Python dependencies
+  audit clean. First hosted matrix result remains pending. → D56.
 - **2026-07-25 23:16 JDT** — **Public v0.1 release published.** Published the
   Apache-2.0 repository and GitHub release, attached the validated wheel and
   sdist, and pinned the no-clone README flow to immutable tag `v0.1.0`.
@@ -611,7 +625,7 @@ usage identifies a concrete failure or onboarding obstacle.
 
 ## Artifact / file index
 
-*(layout as of 2026-07-25 23:05 JDT)*
+*(layout as of 2026-07-25 23:25 JDT)*
 
 **`docs/`**
 - `PROJECT-LOG.md` — this file; the single record.
@@ -622,6 +636,8 @@ usage identifies a concrete failure or onboarding obstacle.
   release proof, and first 10-candidate validation protocol.
 
 **`gate/core/`** — *the module.* Start here.
+- `doctor.py` — zero-API setup diagnostics for local state, loopback,
+  Playwright, Chromium and a real browser launch.
 - `manifest.py` — versioned user manifest, path/domain validation, hook
   execution, and deep expected-value comparison.
 - `verify.py` — the entry point: `verify(artifact, functional=...) -> Verdict`.
@@ -645,7 +661,8 @@ usage identifies a concrete failure or onboarding obstacle.
   cache-only mode, replayable original response prices, fenced-block extraction.
 
 **`gate/`** — current verticals, CLIs, and regressions only.
-- `cli.py` — packaged no-API `turing-gate` verify/demo/install-browser command.
+- `cli.py` — packaged no-API
+  `turing-gate` verify/demo/doctor/install-browser command.
 - `demos/` — bundled Wordle, calculator, and exfiltration demonstrations.
 - Per vertical: a scaffold in `scaffold/` + a `*_spec.py` (`wordle`, `game2048`,
   `billsplit`, `calc`).
@@ -672,12 +689,16 @@ usage identifies a concrete failure or onboarding obstacle.
 research/predecessors), `archive/gate-deadends/` (failed approaches), and
 `archive/plans/` (completed/superseded planning documents).
 
+**`.github/workflows/`** — `clean-room.yml` builds and exercises the wheel on
+fresh Windows and Linux hosted runners; setup proxy, not adoption evidence.
+
 **Root** — `README.md`, Apache-2.0 `LICENSE` + `NOTICE`, `.gitignore`,
 `.env.example`, `.repomixignore`, `pyproject.toml`, `uv.lock`, `package.json`,
 and `pnpm-lock.yaml`.
 `.env` holds `CLAUDE_API_KEY` and is gitignored — never commit it.
 
-**Public path:** `uv run turing-gate install-browser`, then
+**Public path:** `uv run turing-gate install-browser`, confirm with
+`uv run turing-gate doctor`, then
 `uv run turing-gate demo` or `uv run turing-gate verify turing.json`.
 **Full research regression:** `uv run --extra ai python gate/offline_all_check.py`.
 Repository snapshots use `pnpm install --frozen-lockfile --ignore-scripts`

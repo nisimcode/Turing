@@ -10,6 +10,7 @@ import sys
 from importlib import metadata, resources
 from pathlib import Path
 
+from .core.doctor import doctor_report
 from .core.manifest import ManifestError, verify_manifest
 from .core.verify import print_verdict
 
@@ -110,10 +111,33 @@ def _demo(args) -> int:
     return 1 if failures else 0
 
 
-def _install_browser(_args) -> int:
+def _doctor(args) -> int:
+    report = doctor_report(_version())
+    if args.json:
+        print(json.dumps(report, ensure_ascii=False, indent=2))
+    else:
+        print(f"Turing Gate {_version()} environment")
+        for check in report["checks"]:
+            mark = "ok " if check["ok"] else "XX "
+            print(f"  [{mark}] {check['name']}: {check['detail']}")
+            if check.get("fix"):
+                print(f"         fix: {check['fix']}")
+        print(
+            "\nREADY: verification can run."
+            if report["ready"]
+            else "\nNOT READY: resolve the failed setup checks above."
+        )
+    return 0 if report["ready"] else 2
+
+
+def _install_browser(args) -> int:
     print("Installing the Playwright Chromium runtime...")
+    command = [sys.executable, "-m", "playwright", "install"]
+    if args.with_deps:
+        command.append("--with-deps")
+    command.append("chromium")
     return subprocess.run(
-        [sys.executable, "-m", "playwright", "install", "chromium"],
+        command,
         check=False,
     ).returncode
 
@@ -148,8 +172,21 @@ def _parser() -> argparse.ArgumentParser:
     )
     demo.set_defaults(run=_demo)
 
+    doctor = sub.add_parser(
+        "doctor", help="diagnose local setup without making API calls"
+    )
+    doctor.add_argument(
+        "--json", action="store_true", help="emit machine-readable diagnostics"
+    )
+    doctor.set_defaults(run=_doctor)
+
     installing = sub.add_parser(
         "install-browser", help="install the Chromium runtime used for isolation"
+    )
+    installing.add_argument(
+        "--with-deps",
+        action="store_true",
+        help="also install Linux browser system dependencies",
     )
     installing.set_defaults(run=_install_browser)
     return parser

@@ -1,5 +1,7 @@
 # Turing Gate
 
+[![Clean-room package](https://github.com/nisimcode/Turing/actions/workflows/clean-room.yml/badge.svg)](https://github.com/nisimcode/Turing/actions/workflows/clean-room.yml)
+
 > **AI agents:** Before analyzing, planning, or changing this repository, read
 > [`docs/PROJECT-LOG.md`](docs/PROJECT-LOG.md) in full. It is the source of truth
 > for current status, decisions, completed work, open questions, and the exact
@@ -24,8 +26,12 @@ From a clone:
 
 ```bash
 uv run turing-gate install-browser
+uv run turing-gate doctor
 uv run turing-gate demo
 ```
+
+On Linux, if `doctor` reports missing browser system libraries, run
+`uv run turing-gate install-browser --with-deps`.
 
 The bundled demonstration runs three plausible failures:
 
@@ -39,8 +45,9 @@ the intended defect is caught.
 Run the tagged release without cloning:
 
 ```bash
-uvx --from git+https://github.com/nisimcode/Turing@v0.1.0 turing-gate install-browser
-uvx --from git+https://github.com/nisimcode/Turing@v0.1.0 turing-gate demo
+uvx --from git+https://github.com/nisimcode/Turing@v0.1.1 turing-gate install-browser
+uvx --from git+https://github.com/nisimcode/Turing@v0.1.1 turing-gate doctor
+uvx --from git+https://github.com/nisimcode/Turing@v0.1.1 turing-gate demo
 ```
 
 ## Verify your own artifact
@@ -94,7 +101,8 @@ Use `--json` for machine-readable results. Exit codes are:
 
 - `0`: every runtime and functional check passed.
 - `1`: the artifact was successfully checked and rejected.
-- `2`: configuration or local browser setup is incomplete.
+- `2`: configuration or local browser setup is incomplete, including a
+  not-ready `doctor` result.
 
 The manifest is deliberately narrow:
 
@@ -188,8 +196,14 @@ Build and validate the distributable package:
 
 ```bash
 uv build --no-sources
-uvx --from dist/turing_gate-0.1.0-py3-none-any.whl turing-gate demo
+uvx --from dist/turing_gate-0.1.1-py3-none-any.whl turing-gate doctor
+uvx --from dist/turing_gate-0.1.1-py3-none-any.whl turing-gate demo
 ```
+
+The `Clean-room package` GitHub Actions workflow repeats the wheel-based flow on
+fresh Windows and Linux runners: install Chromium, run `doctor`, catch all three
+bundled defects, and accept the shipping example. This is a reproducible setup
+proxy, not evidence that an outside developer wants or understands the tool.
 
 Create a repository context snapshot:
 

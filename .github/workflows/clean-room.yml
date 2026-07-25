@@ -1,0 +1,66 @@
+name: Clean-room package
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: clean-room-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  package:
+    name: ${{ matrix.os }} / Python 3.12
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+
+      - name: Install pinned uv and Python
+        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
+        with:
+          version: "0.11.32"
+          python-version: "3.12"
+          enable-cache: false
+
+      - name: Build source and wheel packages
+        run: uv build --no-sources
+
+      - name: Install Chromium and Linux system dependencies
+        if: runner.os == 'Linux'
+        run: >-
+          uvx --from ./dist/turing_gate-0.1.1-py3-none-any.whl
+          turing-gate install-browser --with-deps
+
+      - name: Install Chromium
+        if: runner.os == 'Windows'
+        run: >-
+          uvx --from ./dist/turing_gate-0.1.1-py3-none-any.whl
+          turing-gate install-browser
+
+      - name: Diagnose the clean environment
+        run: >-
+          uvx --from ./dist/turing_gate-0.1.1-py3-none-any.whl
+          turing-gate doctor --json
+
+      - name: Catch all bundled defects
+        run: >-
+          uvx --from ./dist/turing_gate-0.1.1-py3-none-any.whl
+          turing-gate demo
+
+      - name: Accept the passing user example
+        run: >-
+          uvx --from ./dist/turing_gate-0.1.1-py3-none-any.whl
+          turing-gate verify examples/shipping/turing.json --json

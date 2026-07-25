@@ -10,6 +10,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
+from gate.core.doctor import doctor_report
 from gate.core.manifest import ManifestError, load_manifest, verify_manifest
 
 HERE = Path(__file__).resolve().parent
@@ -110,6 +111,22 @@ def main() -> int:
             )
 
         assert (root / "telemetry.jsonl").exists()
+        diagnostics = doctor_report("test")
+        assert diagnostics["ready"], diagnostics
+        assert {row["name"] for row in diagnostics["checks"]} >= {
+            "local_state", "loopback", "playwright", "chromium", "browser_launch"
+        }
+        old_browser_path = os.environ.get("PLAYWRIGHT_BROWSERS_PATH")
+        os.environ["PLAYWRIGHT_BROWSERS_PATH"] = str(root / "missing-browser")
+        missing_browser = doctor_report("test")
+        assert not missing_browser["ready"], missing_browser
+        assert {
+            row["name"] for row in missing_browser["checks"] if not row["ok"]
+        } == {"chromium", "browser_launch"}
+        if old_browser_path is None:
+            os.environ.pop("PLAYWRIGHT_BROWSERS_PATH", None)
+        else:
+            os.environ["PLAYWRIGHT_BROWSERS_PATH"] = old_browser_path
 
     if previous is None:
         os.environ.pop("GATE_TELEMETRY_PATH", None)
@@ -123,6 +140,8 @@ def main() -> int:
     print("  calculator negative-division bug caught")
     print("  four-vector exfiltration caught")
     print("  local-only telemetry override honored")
+    print("  doctor environment diagnostics passed")
+    print("  doctor missing-browser failure diagnosed")
     print("  API spend: $0")
     return 0
 
