@@ -36,11 +36,11 @@ The bundled demonstration runs three plausible failures:
 All three artifacts should be rejected, and the demo command succeeds only when
 the intended defect is caught.
 
-Once the repository is public, the same demo can run without cloning:
+Run the tagged release without cloning:
 
 ```bash
-uvx --from git+https://github.com/nisimcode/Turing turing-gate install-browser
-uvx --from git+https://github.com/nisimcode/Turing turing-gate demo
+uvx --from git+https://github.com/nisimcode/Turing@v0.1.0 turing-gate install-browser
+uvx --from git+https://github.com/nisimcode/Turing@v0.1.0 turing-gate demo
 ```
 
 ## Verify your own artifact

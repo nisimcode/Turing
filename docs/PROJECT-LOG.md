@@ -12,7 +12,7 @@ with date AND time** (`YYYY-MM-DD HH:MM TZ`). Keep it terse. (Entries before
 
 ---
 
-## Current status (2026-07-25 23:11 JDT)
+## Current status (2026-07-25 23:15 JDT)
 
 A point-in-time snapshot — replaced wholesale on each update. The chronological
 record lives in *Milestones*; do not append history here.
@@ -23,8 +23,8 @@ deterministic manifest + isolated browser verifier, not a model router: it
 requires no API key or hosted service. The earlier cascade, oracle, and
 auto-vertical work remains measured research, not the public product surface.
 
-**Where the code is.** Repo `nisimcode/Turing` (currently private, branch
-`main`), now licensed Apache 2.0. `gate/cli.py` exposes the packaged
+**Where the code is.** Public repo `nisimcode/Turing` (branch `main`), licensed
+Apache 2.0 with release `v0.1.0`. `gate/cli.py` exposes the packaged
 `turing-gate` command; `gate/core/manifest.py` binds a local artifact, browser
 hook, domain schema, and exact cases; `gate/core/verify.py` and `sandbox.py`
 provide the fail-closed runtime. The wheel includes only the CLI, core, and
@@ -54,12 +54,12 @@ checkable pure function (games, calculators, validators). Content/UI is
 **floor-only**: objective checks caught 5/5 structural defects but 2/2 subjective
 ones passed. Sell those as *working, accessible, complete* — never as *good*.
 
-**Adoption-release engineering ≈ 92%; adoption evidence = 0/20 developers,
+**Adoption-release engineering ≈ 95%; adoption evidence = 0/20 developers,
 0/5 user-owned artifacts, 0/3 repeat users.** Apache licensing, local package,
-no-API manifest, three demonstrations, isolated-wheel smoke test, and unified
-zero-credit regression are complete. Still required for v0.1 distribution:
-make the repository public, publish/tag a release, verify cold onboarding on a
-second machine, and recruit/observe outside users. Q25’s prepared human sample
+no-API manifest, three demonstrations, isolated-wheel smoke test, unified
+zero-credit regression, public repository, and tagged GitHub release are
+complete. Still required: verify cold onboarding on a second machine and
+recruit/observe outside users. Q25’s prepared human sample
 now applies only to the experimental auto-vertical path and does not block the
 deterministic public verifier.
 
@@ -73,8 +73,7 @@ failure** — three today (floor `has_dom`, fence-matching regex, mutation hook)
 each briefly masqueraded as a real finding. Verify surprising results before
 believing them.
 
-**Next action.** Publish v0.1: change GitHub visibility to public, tag the
-validated wheel state, test the README flow from a clean machine/account, then
+**Next action.** Test the tagged README flow from a clean machine/account, then
 begin the 30-day 20/5/3 adoption test. Do not add more gate research until real
 usage identifies a concrete failure or onboarding obstacle.
 
@@ -144,6 +143,10 @@ usage identifies a concrete failure or onboarding obstacle.
 
 ## Milestones completed
 
+- **2026-07-25 23:15 JDT** — **Public v0.1 release prepared.** Published the
+  Apache-2.0 repository, pinned the no-clone README flow to immutable tag
+  `v0.1.0`, and bound the release to the fully validated adoption-first package.
+  The only unproven release step is cold onboarding outside this workstation.
 - **2026-07-25 23:11 JDT** — **Adoption-first v0.1 package completed.**
   Replaced the proprietary licence with exact Apache 2.0 terms + NOTICE. Added
   `pyproject.toml`, reproducible `uv.lock`, `turing-gate` entry point, strict
