@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "name": "benchmark-slug-broken",
+  "artifact": "artifact.html",
+  "hook": "window.benchmark.broken",
+  "domain_schema": {
+    "args": [{"type": "string", "minLength": 1, "maxLength": 100}]
+  },
+  "cases": [
+    {"label": "basic words", "args": ["Hello World"], "expected": "hello-world"},
+    {"label": "punctuation collapsed", "args": ["Hello, World!"], "expected": "hello-world"},
+    {"label": "runs and edges", "args": ["  Ship---It  "], "expected": "ship-it"}
+  ]
+}

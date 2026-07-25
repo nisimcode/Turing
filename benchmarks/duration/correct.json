@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "name": "benchmark-duration-correct",
+  "artifact": "artifact.html",
+  "hook": "window.benchmark.correct",
+  "domain_schema": {
+    "args": [{"type": "integer", "minimum": 0, "maximum": 359999}]
+  },
+  "cases": [
+    {"label": "seconds", "args": [59], "expected": "00:00:59"},
+    {"label": "minute boundary", "args": [60], "expected": "00:01:00"},
+    {"label": "before hour", "args": [3599], "expected": "00:59:59"},
+    {"label": "hour rollover", "args": [3600], "expected": "01:00:00"},
+    {"label": "multi-hour", "args": [7384], "expected": "02:03:04"}
+  ]
+}

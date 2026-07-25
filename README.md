@@ -205,6 +205,18 @@ fresh Windows and Linux runners: install Chromium, run `doctor`, catch all three
 bundled defects, and accept the shipping example. This is a reproducible setup
 proxy, not evidence that an outside developer wants or understands the tool.
 
+Run the paired multi-domain regression benchmark:
+
+```bash
+uv run python gate/offline_benchmark_check.py
+```
+
+It currently checks six correct and six broken subjects across calculators,
+validators, formatters, and game rules. A pass requires zero false accepts,
+zero false rejects, and the intended diagnostic for every broken subject. The
+corpus is documented in `benchmarks/README.md`. Its hand-authored controls prove
+regression coverage, not an unknown-fault or production reliability rate.
+
 Create a repository context snapshot:
 
 ```bash

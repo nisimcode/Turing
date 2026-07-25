@@ -12,7 +12,7 @@ with date AND time** (`YYYY-MM-DD HH:MM TZ`). Keep it terse. (Entries before
 
 ---
 
-## Current status (2026-07-25 23:29 JDT)
+## Current status (2026-07-25 23:36 JDT)
 
 A point-in-time snapshot — replaced wholesale on each update. The chronological
 record lives in *Milestones*; do not append history here.
@@ -43,6 +43,7 @@ are excluded from the installed wheel.
 | Setup failures are locally diagnosable | `turing-gate doctor`: 8/8 healthy-environment checks PASS; forced missing-browser path returns not-ready with exact repair command |
 | The wheel works in clean hosted environments | first main run `30173582765`: Ubuntu PASS in 36s, Windows PASS in 53s; exact `v0.1.1` tag run `30173641636`: Ubuntu PASS in 38s, Windows PASS in 54s; install → doctor → 3 demos → user example, no retries |
 | The new tagged CLI is publicly fetchable | refreshed HTTPS `uvx` resolved `v0.1.1` to commit `1b06f3f`; `doctor --json` passed all 8 setup checks |
+| The public manifest path is stable across varied logic tools | paired `logic-tools-v1` benchmark: 6 domains / 12 subjects, 12/12 correct decisions, 0 false accepts, 0 false rejects, 6/6 intended diagnostics; local median 1.453s, p95 1.484s |
 | The gate catches faults nobody here thought of | mutation score **100%**, 15/15 execution-validated mutants killed |
 | Auto-generated batteries have measured fault coverage | Caesar auto-battery mutation score **100%**, 5/5 execution-validated mutants killed over 498 independent probes |
 | Undefined inputs do not become false rejects | Q21 regression withheld 2/2 out-of-domain Luhn cases; correct implementation PASS, 0 false rejects |
@@ -79,10 +80,10 @@ failure** — three today (floor `has_dom`, fence-matching regex, mutation hook)
 each briefly masqueraded as a real finding. Verify surprising results before
 believing them.
 
-**Next action.** Expand the correct/broken artifact benchmark across several
-logic-tool domains while human recruitment is deferred. Measure false accepts,
-false rejects, runtime, and diagnostic clarity. Hosted CI does not count toward
-20/5/3.
+**Next action.** Push the paired benchmark through clean Windows/Linux CI, then
+add independently produced or mechanically generated faults so future evidence
+is not limited to bugs authored alongside their cases. Hosted CI and benchmark
+subjects do not count toward 20/5/3.
 
 ---
 
@@ -90,6 +91,7 @@ false rejects, runtime, and diagnostic clarity. Hosted CI does not count toward
 
 | # | Date/time | Decision |
 |---|------|----------|
+| D57 | 2026-07-25 23:36 JDT | **Benchmark the public gate with paired controls and explicit failure semantics.** `logic-tools-v1` fixes one artifact and case set per domain, then invokes correct and deliberately broken hooks separately. Report false accepts, false rejects, diagnostic hits, total/median/p95 runtime, and category rollups; fail unless every correct control is accepted, every broken control rejected, and every rejection identifies the intended edge label. The initial corpus spans shipping, duration, email, slug, CSV and tic-tac-toe (12 subjects). Because faults and cases were hand-authored together, treat 12/12 as regression coverage only—not an unknown-fault rate, production reliability estimate, or adoption evidence. |
 | D56 | 2026-07-25 23:25 JDT | **Defer the difficult human-adoption step without pretending automation replaces it.** Use fresh Windows/Linux GitHub-hosted runners as the reproducible cold-environment proxy, and add a zero-API `turing-gate doctor` that checks Python/package identity, local-state writes, loopback binding, Playwright, Chromium presence, and a real browser launch. CI must build and install the wheel, diagnose setup, catch 3/3 demos, and accept the user example. These runs improve distribution confidence but count as 0 developers, 0 own artifacts, and 0 repeat users in the 20/5/3 test. |
 | D55 | 2026-07-25 23:05 JDT | **Pivot from proprietary research prototype to an Apache-2.0, adoption-first local developer tool.** The dependable product surface is `turing-gate verify turing.json`: a versioned deterministic manifest, directory-confined self-contained HTML artifact, dotted browser hook, optional domain schema, and exact cases. It needs no model/API key; writes only local `.turing/telemetry.jsonl`; and returns distinct pass/reject/setup exit codes. The wheel excludes auto-vertical and experiment runners. Three bundled known-bad demos catch Wordle duplicates, negative division, and four-vector exfiltration. Success is now 20 outside verifications / 5 own artifacts / 3 repeat users in 30 days, not more internal research. Supersedes D29’s proprietary licence and makes Q25 non-blocking for the public path. |
 | D54 | 2026-07-25 22:39 JDT | **Ignore rules must protect machine state without hiding legitimate project artifacts.** Reorganized `.gitignore` into secrets, Python, Node, workspace/tool caches, generated model/runtime output, browser artifacts, editor/OS state, and Repomix bundles. Added local agent directories, Python analysis/coverage/build caches, package-manager logs, and generic workspace caches; generalized `.llm-cache/` to every location. Replaced broad `*.zip` with Playwright-specific `trace.zip` so a legitimate archive remains trackable. Verified all generated paths are ignored while `.env.example`, `.repomixignore`, `package.json`, and `pnpm-lock.yaml` remain trackable. |
@@ -151,6 +153,14 @@ false rejects, runtime, and diagnostic clarity. Hosted CI does not count toward
 
 ## Milestones completed
 
+- **2026-07-25 23:36 JDT** — **Paired logic-tool benchmark established.**
+  Added six domains / twelve subjects with shared cases for each correct/broken
+  pair: shipping and duration calculators, email validation, slug and CSV
+  formatting, and tic-tac-toe rules. Local result: 12/12 decisions, 0 false
+  accepts, 0 false rejects, 6/6 intended diagnostic labels, median 1.453s and
+  p95 1.484s per subject. The versioned index is directory-confined and its
+  escape regression passes. Integrated into the unified $0 checkpoint and
+  clean-room workflow; hosted matrix result pending. → D57.
 - **2026-07-25 23:27 JDT** — **v0.1.1 distribution hardening validated.**
   Added `turing-gate doctor` with human/JSON output and setup exit
   code `2`; healthy Windows checks pass 8/8 and a forced missing Chromium path
@@ -629,7 +639,7 @@ false rejects, runtime, and diagnostic clarity. Hosted CI does not count toward
 
 ## Artifact / file index
 
-*(layout as of 2026-07-25 23:25 JDT)*
+*(layout as of 2026-07-25 23:36 JDT)*
 
 **`docs/`**
 - `PROJECT-LOG.md` — this file; the single record.
@@ -680,7 +690,8 @@ false rejects, runtime, and diagnostic clarity. Hosted CI does not count toward
 - `offline_all_check.py` — unified zero-credit pre-human checkpoint; the
   narrower `offline_q21_check.py`, `offline_q24_check.py`,
   `offline_q25_check.py`, `offline_q26_check.py`,
-  `offline_manifest_check.py`, `offline_review_check.py`, and
+  `offline_benchmark_check.py`, `offline_manifest_check.py`,
+  `offline_review_check.py`, and
   `offline_lifecycle_check.py` compose into it.
 - `q25-handoff/` — generated eligible-only reviewer UIs and immutable dossiers;
   local runtime output, gitignored.
@@ -694,7 +705,11 @@ research/predecessors), `archive/gate-deadends/` (failed approaches), and
 `archive/plans/` (completed/superseded planning documents).
 
 **`.github/workflows/`** — `clean-room.yml` builds and exercises the wheel on
-fresh Windows and Linux hosted runners; setup proxy, not adoption evidence.
+fresh Windows and Linux hosted runners, then runs the paired benchmark; setup
+and regression proxy, not adoption evidence.
+
+**`benchmarks/`** — versioned `logic-tools-v1` paired corpus, per-domain
+artifacts/manifests, schema/extension instructions, and interpretation limits.
 
 **Root** — `README.md`, Apache-2.0 `LICENSE` + `NOTICE`, `.gitignore`,
 `.env.example`, `.repomixignore`, `pyproject.toml`, `uv.lock`, `package.json`,

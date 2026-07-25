@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "name": "benchmark-shipping-correct",
+  "artifact": "artifact.html",
+  "hook": "window.benchmark.correct",
+  "domain_schema": {"args": [{"type": "number", "minimum": 0}]},
+  "cases": [
+    {"label": "below threshold", "args": [99], "expected": 8},
+    {"label": "threshold boundary", "args": [100], "expected": 0},
+    {"label": "above threshold", "args": [250], "expected": 0}
+  ]
+}

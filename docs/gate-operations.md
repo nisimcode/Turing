@@ -56,6 +56,13 @@ path on fresh Windows and Linux GitHub-hosted runners for every push and pull
 request. It is a clean-environment installation proxy only. It does not replace
 unassisted onboarding or count toward the 20/5/3 outside-adoption target.
 
+The same workflow runs `gate/offline_benchmark_check.py` against the paired
+logic-tool corpus in `benchmarks/`. Release confidence requires all correct
+controls accepted, all broken controls rejected, zero false accepts/rejects,
+and the intended diagnostic label for every broken control. Runtime is reported
+as total, median and p95. Because cases and defects are hand-authored together,
+this is regression evidence only; it is not a production error-rate estimate.
+
 ---
 
 ## 2. Where humans are required

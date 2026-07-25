@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Tic-tac-toe rule benchmark</title>
+<body>
+  <main>
+    <h1>Tic-tac-toe winner</h1>
+    <p>Returns X, O, or null for a nine-cell board.</p>
+    <button id="run">Check board</button>
+    <output id="result">Ready</output>
+  </main>
+  <script>
+    const allLines = [
+      [0,1,2], [3,4,5], [6,7,8],
+      [0,3,6], [1,4,7], [2,5,8],
+      [0,4,8], [2,4,6]
+    ];
+    const partialLines = allLines.slice(0, 6);
+    const winner = lines => board => {
+      for (const [a, b, c] of lines) {
+        if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+          return board[a];
+        }
+      }
+      return null;
+    };
+    const correct = winner(allLines);
+    const broken = winner(partialLines);
+    window.benchmark = { correct, broken };
+    run.onclick = () => result.value = correct(["X","","","","X","","","","X"]);
+  </script>
+</body>
+</html>

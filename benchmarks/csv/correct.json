@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "name": "benchmark-csv-correct",
+  "artifact": "artifact.html",
+  "hook": "window.benchmark.correct",
+  "domain_schema": {
+    "args": [{"type": "string", "maxLength": 100}]
+  },
+  "cases": [
+    {"label": "plain field", "args": ["hello"], "expected": "hello"},
+    {"label": "comma quoted", "args": ["hello,world"], "expected": "\"hello,world\""},
+    {"label": "embedded quote escaped", "args": ["say \"hi\""], "expected": "\"say \"\"hi\"\"\""},
+    {"label": "newline quoted", "args": ["a\nb"], "expected": "\"a\nb\""}
+  ]
+}

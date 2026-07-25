@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "name": "logic-tools-v1",
+  "subjects": [
+    {
+      "id": "shipping/correct",
+      "category": "calculator",
+      "manifest": "shipping/correct.json",
+      "expected": "pass"
+    },
+    {
+      "id": "shipping/broken",
+      "category": "calculator",
+      "manifest": "shipping/broken.json",
+      "expected": "reject",
+      "expected_check": "manifest_cases",
+      "diagnostic_contains": "threshold boundary"
+    },
+    {
+      "id": "email/correct",
+      "category": "validator",
+      "manifest": "email/correct.json",
+      "expected": "pass"
+    },
+    {
+      "id": "email/broken",
+      "category": "validator",
+      "manifest": "email/broken.json",
+      "expected": "reject",
+      "expected_check": "manifest_cases",
+      "diagnostic_contains": "domain must contain dot"
+    },
+    {
+      "id": "slug/correct",
+      "category": "formatter",
+      "manifest": "slug/correct.json",
+      "expected": "pass"
+    },
+    {
+      "id": "slug/broken",
+      "category": "formatter",
+      "manifest": "slug/broken.json",
+      "expected": "reject",
+      "expected_check": "manifest_cases",
+      "diagnostic_contains": "punctuation collapsed"
+    },
+    {
+      "id": "csv/correct",
+      "category": "formatter",
+      "manifest": "csv/correct.json",
+      "expected": "pass"
+    },
+    {
+      "id": "csv/broken",
+      "category": "formatter",
+      "manifest": "csv/broken.json",
+      "expected": "reject",
+      "expected_check": "manifest_cases",
+      "diagnostic_contains": "embedded quote escaped"
+    },
+    {
+      "id": "duration/correct",
+      "category": "calculator",
+      "manifest": "duration/correct.json",
+      "expected": "pass"
+    },
+    {
+      "id": "duration/broken",
+      "category": "calculator",
+      "manifest": "duration/broken.json",
+      "expected": "reject",
+      "expected_check": "manifest_cases",
+      "diagnostic_contains": "hour rollover"
+    },
+    {
+      "id": "tic-tac-toe/correct",
+      "category": "game-rule",
+      "manifest": "tic-tac-toe/correct.json",
+      "expected": "pass"
+    },
+    {
+      "id": "tic-tac-toe/broken",
+      "category": "game-rule",
+      "manifest": "tic-tac-toe/broken.json",
+      "expected": "reject",
+      "expected_check": "manifest_cases",
+      "diagnostic_contains": "main diagonal"
+    }
+  ]
+}

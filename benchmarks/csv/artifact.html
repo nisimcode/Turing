@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>CSV formatter benchmark</title>
+<body>
+  <main>
+    <h1>CSV field formatter</h1>
+    <p>Escapes one field according to conventional CSV quoting rules.</p>
+    <button id="run">Escape</button>
+    <output id="result">Ready</output>
+  </main>
+  <script>
+    const correct = value => {
+      const escaped = value.replace(/"/g, '""');
+      return /[",\n]/.test(value) ? `"${escaped}"` : escaped;
+    };
+    const broken = value => /[,\n]/.test(value) ? `"${value}"` : value;
+    window.benchmark = { correct, broken };
+    run.onclick = () => result.value = correct("hello,world");
+  </script>
+</body>
+</html>

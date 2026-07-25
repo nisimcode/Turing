@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Shipping calculator benchmark</title>
+<body>
+  <main>
+    <h1>Shipping calculator</h1>
+    <p>Free shipping begins at 100 credits.</p>
+    <button id="run">Calculate</button>
+    <output id="result">Ready</output>
+  </main>
+  <script>
+    const correct = total => total >= 100 ? 0 : 8;
+    const broken = total => total > 100 ? 0 : 8;
+    window.benchmark = { correct, broken };
+    run.onclick = () => result.value = correct(100);
+  </script>
+</body>
+</html>

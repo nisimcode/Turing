@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Duration formatter benchmark</title>
+<body>
+  <main>
+    <h1>Duration formatter</h1>
+    <p>Formats non-negative seconds as HH:MM:SS.</p>
+    <button id="run">Format</button>
+    <output id="result">Ready</output>
+  </main>
+  <script>
+    const pad = value => String(value).padStart(2, "0");
+    const correct = seconds => {
+      const hours = Math.floor(seconds / 3600);
+      const minutes = Math.floor(seconds / 60) % 60;
+      return `${pad(hours)}:${pad(minutes)}:${pad(seconds % 60)}`;
+    };
+    const broken = seconds => {
+      const hours = Math.floor(seconds / 3600);
+      const minutes = Math.floor(seconds / 60);
+      return `${pad(hours)}:${pad(minutes)}:${pad(seconds % 60)}`;
+    };
+    window.benchmark = { correct, broken };
+    run.onclick = () => result.value = correct(3600);
+  </script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "name": "benchmark-email-correct",
+  "artifact": "artifact.html",
+  "hook": "window.benchmark.correct",
+  "domain_schema": {
+    "args": [{"type": "string", "minLength": 3, "maxLength": 100}]
+  },
+  "cases": [
+    {"label": "simple address", "args": ["a@b.co"], "expected": true},
+    {"label": "tagged address", "args": ["first.last+tag@example.com"], "expected": true},
+    {"label": "domain must contain dot", "args": ["user@example"], "expected": false},
+    {"label": "double at rejected", "args": ["a@@example.com"], "expected": false}
+  ]
+}

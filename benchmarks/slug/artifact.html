@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Slug formatter benchmark</title>
+<body>
+  <main>
+    <h1>Slug formatter</h1>
+    <p>Formats ASCII titles as lowercase URL slugs.</p>
+    <button id="run">Format</button>
+    <output id="result">Ready</output>
+  </main>
+  <script>
+    const correct = value => value.toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+    const broken = value => value.toLowerCase().trim().replace(/\s+/g, "-");
+    window.benchmark = { correct, broken };
+    run.onclick = () => result.value = correct("Hello World");
+  </script>
+</body>
+</html>

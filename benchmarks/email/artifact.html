@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Email validator benchmark</title>
+<body>
+  <main>
+    <h1>Email validator</h1>
+    <p>Checks the project’s deliberately narrow email format.</p>
+    <button id="run">Validate</button>
+    <output id="result">Ready</output>
+  </main>
+  <script>
+    const correct = value => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+    const broken = value => value.includes("@");
+    window.benchmark = { correct, broken };
+    run.onclick = () => result.value = String(correct("a@b.co"));
+  </script>
+</body>
+</html>

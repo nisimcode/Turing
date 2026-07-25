@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "name": "benchmark-tic-tac-toe-correct",
+  "artifact": "artifact.html",
+  "hook": "window.benchmark.correct",
+  "domain_schema": {
+    "args": [{
+      "type": "array",
+      "minItems": 9,
+      "maxItems": 9,
+      "items": {"type": "string", "enum": ["X", "O", ""]}
+    }]
+  },
+  "cases": [
+    {"label": "top row", "args": [["X","X","X","","O","","","O",""]], "expected": "X"},
+    {"label": "middle column", "args": [["X","O","","","O","X","","O",""]], "expected": "O"},
+    {"label": "main diagonal", "args": [["X","O","","","X","O","","","X"]], "expected": "X"},
+    {"label": "no winner", "args": [["X","O","X","X","O","O","O","X","X"]], "expected": null}
+  ]
+}
