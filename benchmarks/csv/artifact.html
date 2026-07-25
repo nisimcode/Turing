@@ -10,10 +10,12 @@
     <output id="result">Ready</output>
   </main>
   <script>
+    /* BENCHMARK_CORRECT_START */
     const correct = value => {
       const escaped = value.replace(/"/g, '""');
       return /[",\n]/.test(value) ? `"${escaped}"` : escaped;
     };
+    /* BENCHMARK_CORRECT_END */
     const broken = value => /[,\n]/.test(value) ? `"${value}"` : value;
     window.benchmark = { correct, broken };
     run.onclick = () => result.value = correct("hello,world");

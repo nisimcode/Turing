@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "name": "logic-tools-mechanical-v1",
+  "domains": [
+    {
+      "subject": "shipping/correct",
+      "probes": [
+        {"args": [99.5], "expected": 8},
+        {"args": [100.5], "expected": 0},
+        {"args": [101.5], "expected": 0},
+        {"args": [0], "expected": 8},
+        {"args": [1000], "expected": 0}
+      ]
+    },
+    {
+      "subject": "email/correct",
+      "probes": [
+        {"args": [" x@y.co"], "expected": false},
+        {"args": ["x@y.co "], "expected": false},
+        {"args": ["x@y.z"], "expected": true},
+        {"args": ["no-at.example"], "expected": false}
+      ]
+    },
+    {
+      "subject": "slug/correct",
+      "probes": [
+        {"args": ["One / Two / Three"], "expected": "one-two-three"},
+        {"args": ["---Edge---"], "expected": "edge"},
+        {"args": ["A__B"], "expected": "a-b"}
+      ]
+    },
+    {
+      "subject": "csv/correct",
+      "probes": [
+        {"args": ["a\"b\"c"], "expected": "\"a\"\"b\"\"c\""},
+        {"args": ["a,b,c"], "expected": "\"a,b,c\""},
+        {"args": ["x\ny\nz"], "expected": "\"x\ny\nz\""}
+      ]
+    },
+    {
+      "subject": "duration/correct",
+      "probes": [
+        {"args": [61], "expected": "00:01:01"},
+        {"args": [3601], "expected": "01:00:01"},
+        {"args": [86399], "expected": "23:59:59"}
+      ]
+    },
+    {
+      "subject": "tic-tac-toe/correct",
+      "probes": [
+        {
+          "args": [["", "", "O", "", "O", "", "O", "", ""]],
+          "expected": "O"
+        },
+        {
+          "args": [["", "", "", "", "", "", "X", "X", "X"]],
+          "expected": "X"
+        },
+        {
+          "args": [["", "", "", "", "", "", "", "", ""]],
+          "expected": null
+        },
+        {
+          "args": [["X", "", "O", "", "X", "O", "", "", "O"]],
+          "expected": "O"
+        }
+      ]
+    }
+  ]
+}

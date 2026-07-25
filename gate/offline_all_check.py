@@ -16,6 +16,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from gate.core import verify
 from offline_benchmark_check import main as benchmark_check
+from offline_benchmark_mutation_check import main as benchmark_mutation_check
 from offline_lifecycle_check import main as lifecycle_check
 from offline_manifest_check import main as manifest_check
 from offline_q21_check import main as q21_check
@@ -55,6 +56,7 @@ def main() -> int:
     assert lifecycle_check() == 0
     assert manifest_check() == 0
     assert benchmark_check([]) == 0
+    assert benchmark_mutation_check(["--require-perfect"]) == 0
     assert q21_check() == 0
     assert q24_check() == 0
     assert q25_check() == 0
@@ -64,6 +66,7 @@ def main() -> int:
     print("  review workflow + lifecycle: PASS")
     print("  public manifest + three adoption demos: PASS")
     print("  paired multi-domain benchmark: PASS")
+    print("  independent mechanical-fault benchmark: PASS")
     print("  domain ambiguity + mutation scoring: PASS")
     print("  Q25 dossier preparation controls: PASS")
     print("  Q26 paired economics + hidden holdouts: PASS")

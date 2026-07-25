@@ -10,6 +10,8 @@
     {"label": "simple address", "args": ["a@b.co"], "expected": true},
     {"label": "tagged address", "args": ["first.last+tag@example.com"], "expected": true},
     {"label": "domain must contain dot", "args": ["user@example"], "expected": false},
-    {"label": "double at rejected", "args": ["a@@example.com"], "expected": false}
+    {"label": "double at rejected", "args": ["a@@example.com"], "expected": false},
+    {"label": "leading whitespace rejected", "args": [" lead@example.net"], "expected": false},
+    {"label": "trailing whitespace rejected", "args": ["trail@example.net "], "expected": false}
   ]
 }

@@ -10,7 +10,9 @@
     <output id="result">Ready</output>
   </main>
   <script>
+    /* BENCHMARK_CORRECT_START */
     const correct = total => total >= 100 ? 0 : 8;
+    /* BENCHMARK_CORRECT_END */
     const broken = total => total > 100 ? 0 : 8;
     window.benchmark = { correct, broken };
     run.onclick = () => result.value = correct(100);

@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import json
 import re
+import shutil
 import tempfile
 from pathlib import Path
 
@@ -78,7 +79,7 @@ MECHANICAL_RULES = (
 )
 
 
-def _generic_source_mutants(impl: str):
+def generic_source_mutants(impl: str):
     """Yield plausible one-site mutations for arbitrary JavaScript functions.
 
     These are only *candidates*. `validated_mechanical_mutants` executes every
@@ -100,6 +101,24 @@ def _generic_source_mutants(impl: str):
                 impl[:match.start()] + new + impl[match.end():],
                 f"{old} -> {new}",
             )
+
+    # Regex mutations cover validators and formatters that have no arithmetic
+    # boundaries. Each candidate is still execution-validated before counting.
+    for old, new, label in (
+        ("/^", "/", "remove regex start anchor"),
+        ("$/", "/", "remove regex end anchor"),
+        ("/g", "/", "remove regex global flag"),
+    ):
+        for match in re.finditer(re.escape(old), impl):
+            yield (
+                impl[:match.start()] + new + impl[match.end():],
+                label,
+            )
+    for match in re.finditer(r"\.test\(([^()\n]*)\)", impl):
+        yield (
+            impl[:match.end()] + " === false" + impl[match.end():],
+            "invert regex predicate",
+        )
 
     # Numeric boundary/off-by-one mutations work across converters, validators,
     # rankings and range-based business rules. Avoid mutating 0/1 first because
@@ -128,15 +147,24 @@ def _generic_source_mutants(impl: str):
         )
 
 
-def _run_many(scaffold: str, impl: str, slot: str, inputs: list,
-              invoke: str = DEFAULT_INVOKE) -> list:
+def run_many(scaffold: str, impl: str, slot: str, inputs: list,
+             invoke: str = DEFAULT_INVOKE) -> list:
     """Evaluate the vertical's hook over many inputs in one page load."""
-    with sandboxed_page(_build(scaffold, impl, slot)) as page:
-        return page.evaluate(
-            """(args) => args.map(a => {
-                 try { return JSON.stringify((%s)(a)); }
-                 catch (e) { return 'ERR:' + e.message; }
-               })""" % invoke, inputs)
+    artifact = _build(scaffold, impl, slot)
+    try:
+        with sandboxed_page(artifact) as page:
+            return page.evaluate(
+                """(args) => args.map(a => {
+                     try { return JSON.stringify((%s)(a)); }
+                     catch (e) { return 'ERR:' + e.message; }
+                   })""" % invoke, inputs)
+    finally:
+        shutil.rmtree(artifact.parent, ignore_errors=True)
+
+
+# Compatibility aliases for archived/research callers that imported internals.
+_generic_source_mutants = generic_source_mutants
+_run_many = run_many
 
 
 def find_divergence(scaffold: str, slot: str, impl: str, mutant: str,
@@ -144,8 +172,8 @@ def find_divergence(scaffold: str, slot: str, impl: str, mutant: str,
                     ) -> tuple[int, str, str] | None:
     """First input where mutant and original observably disagree, by execution."""
     try:
-        a = _run_many(scaffold, impl, slot, inputs, invoke)
-        b = _run_many(scaffold, mutant, slot, inputs, invoke)
+        a = run_many(scaffold, impl, slot, inputs, invoke)
+        b = run_many(scaffold, mutant, slot, inputs, invoke)
     except Exception as exc:                                   # noqa: BLE001
         log.warning("divergence search failed: %s", exc)
         return None
@@ -239,7 +267,7 @@ def validated_mechanical_mutants(scaffold: str, slot: str, impl: str,
             if mutant not in seen:
                 seen.add(mutant)
                 candidates.append((mutant, label))
-    for mutant, label in _generic_source_mutants(impl):
+    for mutant, label in generic_source_mutants(impl):
         if mutant not in seen:
             seen.add(mutant)
             candidates.append((mutant, f"generic: {label}"))
@@ -289,7 +317,7 @@ def mutation_score(battery: list[dict], scaffold: str, slot: str,
     inputs = [c["args"] for c in battery]
     killed, survivors = 0, []
     for m in mutants:
-        got = _run_many(scaffold, m["code"], slot, inputs, invoke)
+        got = run_many(scaffold, m["code"], slot, inputs, invoke)
         detected = any(
             not compare(decode(g), c["expected"])
             for g, c in zip(got, battery))

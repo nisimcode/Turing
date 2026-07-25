@@ -15,6 +15,7 @@
     {"label": "top row", "args": [["X","X","X","","O","","","O",""]], "expected": "X"},
     {"label": "middle column", "args": [["X","O","","","O","X","","O",""]], "expected": "O"},
     {"label": "main diagonal", "args": [["X","O","","","X","O","","","X"]], "expected": "X"},
+    {"label": "bottom row", "args": [["X","","","","X","","O","O","O"]], "expected": "O"},
     {"label": "no winner", "args": [["X","O","X","X","O","O","O","X","X"]], "expected": null}
   ]
 }

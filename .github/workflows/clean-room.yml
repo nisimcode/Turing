@@ -67,3 +67,8 @@ jobs:
 
       - name: Measure the paired logic-tool benchmark
         run: uv run --frozen python gate/offline_benchmark_check.py --json
+
+      - name: Challenge cases with independently validated mechanical faults
+        run: >-
+          uv run --frozen python gate/offline_benchmark_mutation_check.py
+          --json --require-perfect

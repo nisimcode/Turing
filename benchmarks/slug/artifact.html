@@ -10,8 +10,10 @@
     <output id="result">Ready</output>
   </main>
   <script>
+    /* BENCHMARK_CORRECT_START */
     const correct = value => value.toLowerCase()
       .replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+    /* BENCHMARK_CORRECT_END */
     const broken = value => value.toLowerCase().trim().replace(/\s+/g, "-");
     window.benchmark = { correct, broken };
     run.onclick = () => result.value = correct("Hello World");

@@ -10,7 +10,9 @@
     <output id="result">Ready</output>
   </main>
   <script>
+    /* BENCHMARK_CORRECT_START */
     const correct = value => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+    /* BENCHMARK_CORRECT_END */
     const broken = value => value.includes("@");
     window.benchmark = { correct, broken };
     run.onclick = () => result.value = String(correct("a@b.co"));

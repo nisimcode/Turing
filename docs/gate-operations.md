@@ -63,6 +63,14 @@ and the intended diagnostic label for every broken control. Runtime is reported
 as total, median and p95. Because cases and defects are hand-authored together,
 this is regression evidence only; it is not a production error-rate estimate.
 
+It then runs `gate/offline_benchmark_mutation_check.py --require-perfect`.
+Mechanical source mutations count only after execution finds a divergence on
+versioned probes whose exact arguments are absent from the scored manifests.
+Every counted mutant must then be killed by the manifest cases. Report
+survivors rather than discarding them; strengthen the cases with a distinct
+example before moving the checkpoint back to green. A perfect score is bounded
+to the generated operators and probes, not a guarantee against unknown faults.
+
 ---
 
 ## 2. Where humans are required
@@ -124,9 +132,10 @@ uv run --extra ai python offline_all_check.py
 
 It makes no model requests. It composes the review and lifecycle state-machine
 tests, public-manifest and adoption-demo controls, Q21 domain regression, Q24
-mutation/cache/cost preflight, Q26 task and economics controls, correct and
-known-broken Wordle controls, and the four-vector exfiltration control. Human
-review starts only after it reports
+mutation/cache/cost preflight, the independent six-domain mechanical-fault
+challenge, Q26 task and economics controls, correct and known-broken Wordle
+controls, and the four-vector exfiltration control. Human review starts only
+after it reports
 `OFFLINE PRE-HUMAN CHECKPOINT: PASS`.
 The exact reviewer protocol is in `docs/human-testing.md`.
 

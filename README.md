@@ -209,13 +209,17 @@ Run the paired multi-domain regression benchmark:
 
 ```bash
 uv run python gate/offline_benchmark_check.py
+uv run python gate/offline_benchmark_mutation_check.py --require-perfect
 ```
 
 It currently checks six correct and six broken subjects across calculators,
 validators, formatters, and game rules. A pass requires zero false accepts,
 zero false rejects, and the intended diagnostic for every broken subject. The
-corpus is documented in `benchmarks/README.md`. Its hand-authored controls prove
-regression coverage, not an unknown-fault or production reliability rate.
+second command mechanically mutates each correct implementation, accepts a
+mutant only after it diverges on independent probes, and then asks whether the
+unchanged manifest cases catch it. The corpus is documented in
+`benchmarks/README.md`. These bounded controls prove regression and measured
+mutation coverage, not an unknown-fault or production reliability rate.
 
 Create a repository context snapshot:
 
@@ -258,6 +262,7 @@ The 30-day validation target is:
 | `gate/demos/` | Wordle, calculator, and exfiltration demonstrations |
 | `examples/shipping/` | Minimal passing artifact + manifest to copy |
 | `gate/offline_manifest_check.py` | Zero-credit public-path regression |
+| `gate/offline_benchmark_mutation_check.py` | Independent mechanical-fault challenge |
 | `gate/offline_all_check.py` | Unified zero-credit regression checkpoint |
 | `gate/auto_vertical.py` | Experimental model-assisted vertical generation |
 | `docs/PROJECT-LOG.md` | Decisions, evidence, current status, and resume point |
