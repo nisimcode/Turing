@@ -12,7 +12,7 @@ with date AND time** (`YYYY-MM-DD HH:MM TZ`). Keep it terse. (Entries before
 
 ---
 
-## Current status (2026-07-25 23:15 JDT)
+## Current status (2026-07-25 23:16 JDT)
 
 A point-in-time snapshot — replaced wholesale on each update. The chronological
 record lives in *Milestones*; do not append history here.
@@ -38,6 +38,7 @@ are excluded from the installed wheel.
 |---|---|
 | An outside artifact can use the gate without Python changes or an API key | versioned JSON manifest: correct control PASS; directory escape and malformed domain schema rejected; bundled Wordle/calculator/exfiltration defects caught 3/3 |
 | The public tool is independently installable | `uv build --no-sources` produced sdist + wheel; isolated `uvx --from <wheel> turing-gate demo` passed 3/3 |
+| The tagged release is publicly fetchable | refreshed `uvx --from git+https://github.com/nisimcode/Turing@v0.1.0 turing-gate demo` resolved public commit `0c04f61` and caught 3/3 defects |
 | The locked public/runtime Python dependency set is clean | experimental `uv audit`: 20 packages checked, no known vulnerabilities or adverse project statuses |
 | The gate catches faults nobody here thought of | mutation score **100%**, 15/15 execution-validated mutants killed |
 | Auto-generated batteries have measured fault coverage | Caesar auto-battery mutation score **100%**, 5/5 execution-validated mutants killed over 498 independent probes |
@@ -54,7 +55,7 @@ checkable pure function (games, calculators, validators). Content/UI is
 **floor-only**: objective checks caught 5/5 structural defects but 2/2 subjective
 ones passed. Sell those as *working, accessible, complete* — never as *good*.
 
-**Adoption-release engineering ≈ 95%; adoption evidence = 0/20 developers,
+**Adoption-release engineering ≈ 97%; adoption evidence = 0/20 developers,
 0/5 user-owned artifacts, 0/3 repeat users.** Apache licensing, local package,
 no-API manifest, three demonstrations, isolated-wheel smoke test, unified
 zero-credit regression, public repository, and tagged GitHub release are
@@ -143,10 +144,12 @@ usage identifies a concrete failure or onboarding obstacle.
 
 ## Milestones completed
 
-- **2026-07-25 23:15 JDT** — **Public v0.1 release prepared.** Published the
-  Apache-2.0 repository, pinned the no-clone README flow to immutable tag
-  `v0.1.0`, and bound the release to the fully validated adoption-first package.
-  The only unproven release step is cold onboarding outside this workstation.
+- **2026-07-25 23:16 JDT** — **Public v0.1 release published.** Published the
+  Apache-2.0 repository and GitHub release, attached the validated wheel and
+  sdist, and pinned the no-clone README flow to immutable tag `v0.1.0`.
+  A refreshed public HTTPS `uvx` fetch resolved commit `0c04f61` and caught all
+  3 demo defects. The only unproven release step is cold onboarding outside
+  this workstation.
 - **2026-07-25 23:11 JDT** — **Adoption-first v0.1 package completed.**
   Replaced the proprietary licence with exact Apache 2.0 terms + NOTICE. Added
   `pyproject.toml`, reproducible `uv.lock`, `turing-gate` entry point, strict
