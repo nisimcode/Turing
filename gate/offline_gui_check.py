@@ -119,7 +119,7 @@ def main(argv: list[str] | None = None) -> int:
         window.add_case("negative value", "[-2, 5]", "3")
 
         manifest_path = window._save_manifest()
-        assert manifest_path == root / "turing.json"
+        assert manifest_path == (root / "turing.json").resolve()
         manifest = load_manifest(manifest_path)
         assert manifest.hook == "window.__turing.add"
         assert len(manifest.cases) == 2

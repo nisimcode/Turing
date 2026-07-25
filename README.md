@@ -53,7 +53,12 @@ uv run turing-gate demo
 ```
 
 On Linux, if `doctor` reports missing browser system libraries, run
-`uv run turing-gate install-browser --with-deps`.
+`uv run turing-gate install-browser --with-deps`. A Debian/Ubuntu GUI install
+also needs:
+
+```bash
+sudo apt-get install libegl1 libxcb-cursor0 libxkbcommon-x11-0
+```
 
 The bundled demonstration runs three plausible failures:
 

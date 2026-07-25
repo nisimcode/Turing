@@ -97,6 +97,7 @@ or spend model credits before actual owner use supplies a concrete gap.
 
 | # | Date/time | Decision |
 |---|------|----------|
+| D63 | 2026-07-26 00:56 JDT | **Install only PySide6 Essentials and make native Linux prerequisites explicit.** The first v0.2.0 candidate run (`30176458991`) provided useful asymmetric evidence: Windows passed exact-wheel GUI import but the regression compared a resolved result to an unresolved temp path; Ubuntu failed the Qt import because `libEGL.so.1` was absent. Fix the test comparison with `.resolve()`, replace full `PySide6` (which also downloads the unused 167 MB Addons wheel) with `PySide6-Essentials`, and install/document Debian/Ubuntu `libegl1`, `libxcb-cursor0`, and `libxkbcommon-x11-0`. Local in-place uninstall briefly damaged the shared PySide namespace; a forced Essentials reinstall and a fresh exact-wheel environment both pass. Do not call the candidate portable until the corrected hosted matrix passes. |
 | D62 | 2026-07-26 00:49 JDT | **Add one optional native owner interface without creating a second gate.** PySide6 is selected only through the `gui` extra; the base CLI stays dependency-light and lazily imports it. `turing-gate ui [folder]` discovers confined HTML artifacts, collects the hook/schema/cases, delegates safe publication to `create_starter_manifest()`, and delegates the verdict to `verify()` / `verify_manifest()` on a QThread. Existing manifests load only when they target the selected artifact; overwrite requires confirmation. “Check page only” remains visibly diagnostic. `ui --check` diagnoses the optional layer without opening a window. A headless regression proves lazy base import, discovery exclusions, JSON validation, two-case save, background Chromium verification and accepted-result rendering; exact built-wheel diagnosis passes with $0 API spend. Ship as v0.2.0 only after Windows/Linux clean-room reproduction. |
 | D61 | 2026-07-26 00:25 JDT | **Give users one task-oriented manual separate from the research and operator record.** `docs/user-manual.md` is the public v0.1.2 reference: setup, demonstration, own-artifact workflow, safe `init`, full manifest/schema fields, effective boundary cases, check/exit interpretation, CI, troubleshooting, privacy, browser containment and explicit non-guarantees. Keep `gate-operations.md` focused on operator policy and `PROJECT-LOG.md` focused on evidence/decisions. Link the manual prominently from README. |
 | D60 | 2026-07-26 00:13 JDT | **Finish pre-adoption engineering by removing manifest boilerplate without guessing correctness.** `turing-gate init` creates a version-1 manifest beside an existing confined HTML artifact. Functional mode requires an explicit hook and JSON cases; otherwise the result is prominently runtime-only. Validate through the production loader before atomic publication, refuse overwrite unless `--force`, and leave no partial file on invalid JSON/schema/path. The public regression covers runtime-only and functional success plus overwrite, malformed-constant and path-escape failures. The independently validated mutation benchmark now also self-tests missing markers, missing probe domains and probe/scored-case contamination before browser execution. Ship this bounded onboarding/harness improvement as v0.1.2, then stop substituting internal work for adoption evidence. |
@@ -164,6 +165,14 @@ or spend model credits before actual owner use supplies a concrete gap.
 
 ## Milestones completed
 
+- **2026-07-26 00:56 JDT** — **First GUI clean-room run found two portable
+  assumptions.** Run `30176458991` stopped Ubuntu at exact-wheel import because
+  Qt needed `libEGL.so.1`; Windows passed import and all prior wheel checks, then
+  exposed an unresolved-path assertion in the GUI regression. Switched the
+  optional dependency from full PySide6 to Essentials, declared the three
+  Debian/Ubuntu Qt libraries, and resolved both test paths. Local GUI workflow
+  and a refreshed exact-wheel Essentials environment pass; corrected hosted
+  reproduction is pending. → D63.
 - **2026-07-26 00:49 JDT** — **Optional native owner GUI completed locally.**
   Added `turing-gate ui` as a lazy PySide6 extra with project/artifact
   selection, explicit hook/domain/case entry, safe manifest replacement, page

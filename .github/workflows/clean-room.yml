@@ -50,6 +50,10 @@ jobs:
           uvx --from ./dist/turing_gate-0.2.0-py3-none-any.whl
           turing-gate install-browser
 
+      - name: Install Linux Qt runtime libraries
+        if: runner.os == 'Linux'
+        run: sudo apt-get install -y libegl1 libxcb-cursor0 libxkbcommon-x11-0
+
       - name: Diagnose the clean environment
         run: >-
           uvx --from ./dist/turing_gate-0.2.0-py3-none-any.whl
@@ -60,7 +64,7 @@ jobs:
           QT_QPA_PLATFORM: offscreen
         run: >-
           uvx --from ./dist/turing_gate-0.2.0-py3-none-any.whl
-          --with "PySide6>=6.7,<7"
+          --with "PySide6-Essentials>=6.7,<7"
           turing-gate ui --check .
 
       - name: Catch all bundled defects

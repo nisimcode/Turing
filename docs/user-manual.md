@@ -76,6 +76,12 @@ On Linux, install Chromium and its operating-system libraries together:
 turing-gate install-browser --with-deps
 ```
 
+On Debian or Ubuntu, install the native Qt runtime libraries as well:
+
+```bash
+sudo apt-get install libegl1 libxcb-cursor0 libxkbcommon-x11-0
+```
+
 The core CLI does not require PySide6. For source development without the GUI,
 use `uv run turing-gate COMMAND` from the clone.
 
