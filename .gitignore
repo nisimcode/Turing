@@ -32,3 +32,6 @@ desktop.ini
 .vscode/
 *.swp
 *~
+
+# ---- Runtime telemetry (local, regenerated) ----
+gate/telemetry.jsonl

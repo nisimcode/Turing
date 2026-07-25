@@ -56,7 +56,8 @@ one (wrong duplicate-letter colouring):
 
 ```bash
 cd gate
-uv run --with playwright --with pillow python run_wordle_gate.py
+uv run --with playwright --with pillow python verify_cli.py \
+    --vertical wordle fixtures/wordle_correct.html fixtures/wordle_broken.html
 ```
 
 ```
@@ -67,6 +68,15 @@ wordle_broken.html     FAIL  wordle_logic=FAIL
 
 Both files pass the runtime floor — only the functional layer catches the bug.
 That gap is the whole point of the project.
+
+Artifacts run **sandboxed**: served from an ephemeral loopback origin in a temp
+directory, with every outbound request blocked and a fresh browser context per
+run. Prove it with the exfiltration probe, which phones home four ways:
+
+```bash
+uv run --with playwright --with pillow python verify_cli.py fixtures/exfiltrate.html
+# -> all 4 requests blocked; artifact FAILS on no_outbound_requests
+```
 
 Generate five Wordles from the cheap model and gate them (costs a few cents):
 
@@ -98,7 +108,10 @@ calculator.
 
 | Path | What |
 |---|---|
-| `gate/browser_gate.py` | runtime floor — headless Chromium checks |
+| **`gate/core/`** | **the module: `verify(artifact) -> Verdict`, sandbox, checks, config, llm** |
+| `gate/verify_cli.py` | CLI entry point — `python verify_cli.py --vertical wordle x.html` |
+| `gate/auto_vertical.py` | build a whole vertical (scaffold + oracle + gate) from a plain request |
+| `gate/browser_gate.py` | earlier standalone runner (superseded by `core/`) |
 | `gate/*_spec.py` | per-vertical oracle + functional checks |
 | `gate/scaffold/`, `gate/fixtures/` | scaffolds we own; correct/broken test fixtures |
 | `gate/constrained_gen*.py` | generate a logic slot → inject → gate |

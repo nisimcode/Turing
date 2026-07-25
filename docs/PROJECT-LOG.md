@@ -44,9 +44,22 @@ disagreement; the scope boundary is mapped (logic-verifiable = correctness
 decision, content/UI = floor only); operations are specified in
 `docs/gate-operations.md`. Repo is prepped for GitHub (`.gitignore`,
 `.env.example`, `README.md`, proprietary `LICENSE`).
-**Next action:** fill the copyright-holder name in `LICENSE`, `git init` and
-push. Then productize — remaining items are engineering/scoping (Q21 spec
-ambiguity, Q5 pass@k at volume), not open research.
+**Engineering pass done (19:24 JDT):** the three gaps that blocked "ready" are
+addressed — sandboxed execution (D33, exfiltration probe blocked 4/4),
+consolidation into `gate.core` with one `verify()` entry point (D32), and
+auto-vertical generation proven end-to-end on 1/3 requests (D34). Repo is on
+GitHub (private, `main`, proprietary © Nisim Levi).
+**Second engineering pass done (19:45 JDT):** spec precision + ensemble oracle
+(auto-verticals accept correct code 3/3, D35), ops doc implemented as
+telemetry + policy code (D37), and volume validation answering Q5 (30/30,
+CI [72%,100%]). Also corrected my own unsafe drop-on-dispute design (D36).
+**Q22 and Q23 closed (19:56 JDT):** disputed cases are re-voted per pinned case
+and recovered (D38); bug-catching is now measured by **mutation score** on
+execution-validated mutants — **100%, 15/15, zero survivors** on the production
+batteries (D39).
+**Next action:** Q24 — score an AUTO-generated battery the same way (the
+hand-written ones are proven; the auto ones that would serve unanticipated
+requests are not). Then commit this batch.
 
 ---
 
@@ -54,6 +67,14 @@ ambiguity, Q5 pass@k at volume), not open research.
 
 | # | Date/time | Decision |
 |---|------|----------|
+| D39 | 2026-07-25 19:56 JDT | **Mutation score is the gate's headline quality metric.** "Catches the bugs we injected" only proves it catches faults we thought of. A mutant counts only once EXECUTION shows a behavioural divergence (models predicted non-existent bugs 2/3 of the time); score = validated mutants killed / validated mutants. Production batteries score **100% (15/15)**. |
+| D38 | 2026-07-25 19:56 JDT | **Disputed oracle cases get a focused second pass** (`resolve_disputed`) before being escalated to a human: one pinned case at a time is a far narrower task than drafting a battery, and narrow tasks are done accurately (97-100%). Restores coverage instead of permanently excluding the input; anything still disputed is a spec gap, not arithmetic, and goes to review. |
+| D37 | 2026-07-25 19:45 JDT | **Ops doc is now code**: `core/telemetry.py` (durable JSONL of every verdict + flag-rate/pass-rate alarms with the measured 3%/50% baselines) and `core/policy.py` (`assess()` implements the §2 trigger table, returning reasons + a `provisional` flag). `verify()` records every run. |
+| D36 | 2026-07-25 19:45 JDT | **Disputed oracle cases must NOT be silently dropped.** Dropping removes that input from testing entirely, so a fault there passes — trading a false reject for a false *accept*, the opposite of the founding rule (D8). Disputed cases are excluded from the battery but recorded, and they make the verdict **PROVISIONAL** pending human resolution. Corrects my own initial design in `core/oracle.py`. |
+| D35 | 2026-07-25 19:45 JDT | **Auto-verticals need spec sharpening + an ensemble-verified oracle, together.** Sharpening alone failed (it *widened* the domain to "any JavaScript value" and invented semantics); the fix is a sharpening pass constrained to a NARROW domain, plus recomputing expected values with a tier-diverse ensemble on pinned inputs. Result: correct code accepted 1/3 → **3/3**. |
+| D34 | 2026-07-25 19:24 JDT | **Auto-scaffolding is viable; the weak link is SPEC PRECISION, not scaffold generation.** 3/3 auto-generated scaffolds were structurally sound (slot + hook + floor pass); the failures came from underspecified `behaviour` text letting oracle and implementation diverge on edge cases. Fix belongs in the spec step (enumerate edge-case handling, or restrict the oracle's domain to what the spec defines) — same root cause as Q21. |
+| D33 | 2026-07-25 19:24 JDT | **All untrusted artifacts execute sandboxed** (`gate/core/sandbox.py`): ephemeral 127.0.0.1 origin rooted in a temp dir (no `file://` host access), every non-artifact request aborted, fresh browser context per run, dialogs/downloads refused, hard timeouts. Outbound attempts are also *reported* — `no_outbound_requests` is a floor check, so code that phones home fails the gate. Docker unavailable on this host; scope limited to single-file HTML/JS, containers still required for build steps/servers/native deps. |
+| D32 | 2026-07-25 19:24 JDT | **Consolidated into a `gate.core` package** with one entry point `verify(artifact, functional=...) -> Verdict`, shared config/tiers/pricing, cost accounting and logging — replacing ~12 scripts that each carried their own key loader and browser setup. Verification deliberately does **not** import the Anthropic SDK (lazy), so gating runs in a minimal environment. |
 | D31 | 2026-07-25 18:57 JDT | **Gate operations spec written** (`docs/gate-operations.md`) — answers Q18. Humans review at *creation* (each new vertical's oracle) and on *anomaly* (deviating spec, top-tier failure, flag-rate excursion, ambiguous edge); everything else runs unattended. Flag rate doubles as a live spec-difficulty alarm — and near-zero on a NEW vertical is suspicious (may mean the ensemble lacks tier diversity), not reassuring. |
 | D30 | 2026-07-25 18:57 JDT | **Content/UI verticals are FLOOR-ONLY.** Objective checks guarantee *working, accessible, complete*; they cannot judge *good*. Sell those verticals on the floor, not on quality — and lead commercially with logic-verifiable verticals where the oracle decides correctness outright. |
 | D29 | 2026-07-25 18:53 JDT | **Licence: proprietary / all rights reserved** (`LICENSE`), source-available for evaluation only. Deliberately the restrictive starting point — it can be loosened later, whereas permissions once granted cannot be withdrawn from copies already taken. Copyright-holder name still to be filled in. |
@@ -90,6 +111,75 @@ ambiguity, Q5 pass@k at volume), not open research.
 
 ## Milestones completed
 
+- **2026-07-25 19:56 JDT** — **Q22 answered: mutation testing**
+  (`gate/core/mutation.py`, `gate/mutation_check.py`). Mutants are proposed by
+  the strong tier but accepted **only when execution demonstrates a divergence**
+  — which is the fix for the unreliable buggy-control generator (it *predicted*
+  differences instead of showing them). Result on the production batteries:
+  **wordle 5/5, game2048 5/5, billsplit 5/5 — mutation score 100%, 0
+  survivors**, cost $0.09. First evidence the gate catches faults nobody here
+  thought of, rather than only the ones we injected.
+  *Harness bug found and fixed en route (the third of its kind today): the
+  mutation module hardcoded `window.__fn` while the production scaffolds expose
+  `__wordle`/`__game2048`/`__tool`, so every call threw identically for original
+  and mutant and all 30 candidates were silently discarded as "no divergence".
+  `find_divergence` now aborts loudly when the original throws on every probe.*
+  → D39.
+- **2026-07-25 19:56 JDT** — **Q23 answered: dispute resolution**
+  (`resolve_disputed` in `core/oracle.py`). Disputed cases now get a focused
+  per-case second pass across the ensemble before exclusion; recovered cases
+  rejoin the battery, so coverage is restored rather than merely made safe.
+  Anything still disputed after focused voting is a spec gap and routes to human
+  review via `policy.assess()`. → D38.
+- **2026-07-25 19:45 JDT** — **Volume validation (Q5 answered)**
+  (`gate/volume_check.py`). 10 generations × 3 verticals through the real
+  pipeline: **wordle 10/10, game2048 10/10, billsplit 10/10** — pass@1 100%,
+  Wilson 95% CI **[72%, 100%]** (n=10 cannot prove better than 72%; reported
+  honestly rather than as "100% reliable"). Cost $0.037. Confirms the standing
+  conclusion: behind a gate, the cheap tier clears these verticals, so
+  escalation is insurance that rarely fires.
+- **2026-07-25 19:45 JDT** — **`docs/gate-operations.md` implemented**
+  (`core/telemetry.py`, `core/policy.py`). Every `verify()` is recorded to
+  JSONL; `alarms()` fires on flag-rate excursions in *both* directions
+  (>60% = spec fighting the models; <0.5% on a new vertical = ensemble probably
+  lacks tier diversity) and on sustained low pass rate; `assess()` returns the
+  §2 human-review triggers with a `provisional` flag. Smoke-tested. → D36, D37.
+- **2026-07-25 19:45 JDT** — **Spec precision + ensemble oracle (Q22)**.
+  Sharpening alone made things *worse* (it widened the domain to "any JavaScript
+  value"); constraining it to a narrow domain AND recomputing expectations with
+  a tier-diverse ensemble fixed it: **correct code accepted 1/3 → 3/3**. The
+  ensemble automatically caught and corrected a real oracle error
+  (`draft corrected on [123, 1]: '234' -> '123'` — the strong tier had
+  miscomputed a Caesar shift), which is the validated design working unattended.
+  Two harness bugs fixed en route: NaN never compares equal (false rejects), and
+  the buggy-control generator still produces non-bugs in 2/3 cases (Q22 open).
+  → D35.
+- **2026-07-25 19:24 JDT** — **Auto-generated VERTICALS tested**
+  (`gate/auto_vertical.py`). From a plain request the pipeline generates
+  scaffold → oracle → implementation → buggy control, then gates it via
+  `gate.core`. Result **1/3 fully working** (anagram checker: correct code
+  accepted, injected bug caught, control confirmed genuine).
+  The other two did **not** fail on scaffolding — all 3 scaffolds were
+  structurally sound (slot + hook + floor pass) and all 3 oracles generated.
+  They failed on **spec ambiguity**: the temperature converter's oracle wanted
+  `None` for empty input while the impl returned `32` (false reject — the same
+  `""` class as Q21); the Caesar cipher's "buggy" control did not actually
+  differ from the correct code, so its result is inconclusive rather than a
+  false accept. Cost $0.24. → D34.
+- **2026-07-25 19:24 JDT** — **Sandboxed execution shipped** (`gate/core/sandbox.py`)
+  — closes the standing security gap (generated JS had been running on the host
+  via `file://`). Verified with `gate/fixtures/exfiltrate.html`, a benign-looking
+  page that phones home four ways: **all 4 blocked** (fetch, image pixel,
+  sendBeacon, XHR) and the artifact **failed** the gate on
+  `no_outbound_requests`. Docker is not installed on this host, so isolation is
+  built from browser-level controls; honest scope limits documented in the module.
+- **2026-07-25 19:24 JDT** — **Research scripts consolidated into `gate.core`**
+  — `config` / `llm` / `sandbox` / `checks` / `verify` plus a `verify_cli.py`
+  entry point. Re-verified through the new module: `wordle_correct` PASS,
+  `wordle_broken` FAIL on `wordle_logic` — correctness detection survives the
+  refactor. Fixed a real bug found en route: `extract_code`'s optional language
+  tag matched a *closing* fence and silently returned garbage (it broke all 3
+  auto-verticals on the first run); replaced with strict `extract_block`. → D32.
 - **2026-07-25 18:57 JDT** — **Q18 answered: gate operations spec**
   (`docs/gate-operations.md`). Codifies who watches the three known blind spots:
   human review at vertical *creation* + on anomaly; flag-rate monitoring as a
@@ -283,13 +373,16 @@ ambiguity, Q5 pass@k at volume), not open research.
 | Q2 | Can the gate reach false-accept ≈ 0 with tolerable false-reject on that vertical? | Phase 2 — **kill check** | LARGELY ANSWERED (2026-07-25 18:35 JDT): yes for the realistic bug distribution — false-accepts 0/12 on obvious→canonical-edge bugs, false-rejects 0/3. Residual false-accepts only for arbitrary-point faults (3/3) → D25/Q19. |
 | Q3 | What false-reject rate / cost budget is acceptable (the tuning target)? | Before Phase 2 tuning | OPEN |
 | Q4 | Build vs no-build apps for the first gate (recommend no-build/single-file first)? | Phase 1 | ANSWERED (2026-07-25): no-build/single-file first (D13). |
-| Q5 | What is the cheap tier's real pass@k on the actual workload (decides if the cascade pays)? | Phase 6 | PARTIAL (2026-07-25): Wordle coloring correct 3/3 among conformant builds, but contract conformance only 3/6. Small n. |
+| Q5 | Cheap tier's real pass@k per vertical (decides if the cascade pays). | — | ANSWERED (2026-07-25 19:45 JDT): 10/10 on each of wordle, game2048, billsplit via constrained generation — pass@1 100%, Wilson 95% CI [72%, 100%]. Escalation is rarely-fired insurance for these verticals. |
 | Q6 | Can an LLM judge reliably score the *subjective* residual for real builds? | Phase 4 (fundamentally limited) | OPEN |
 | Q7 | Does the API key have access to Sonnet 5 and Fable 5 (Fable needs 30-day retention)? | Before Phase 6 | OPEN |
 | Q18 | Human spot-check + flag-rate monitoring for the residual unanimous-wrong risk. | Before unsupervised production use | ANSWERED (2026-07-25 18:57 JDT): spec written — `docs/gate-operations.md` (D31). Residual risk itself remains irreducible; mitigated by one-time human review per new vertical. |
 | Q17 | Does "unanimous ⇒ correct" hold when even the STRONG models revert? | Before auto-gates go live unsupervised | ANSWERED (2026-07-25 18:24 JDT): unanimity did NOT break — 0 unanimous-wrong across 32 hardest-yet inputs (83 cumulative), all 34 errors flagged, strong tier 100%. Safety rests on the strong tier being reliable (D23) → residual risk moved to Q18. |
 | Q16 | Correlated (unanimous-wrong) oracle failure — the residual fatal risk. | Before auto-gates go live | LARGELY ANSWERED (2026-07-25 18:18 JDT): adversarial specs produced 21 errors, **0 unanimous-wrong**; disagreement flagged 100%. BUT correlated failure IS real *within* a tier (3× Haiku wrong together) → don't vote, escalate (D21); diversify tiers (D22). Residual risk → Q17. |
 | Q15 | A wrong oracle is INVISIBLE in production (looks identical to bad code). Detect it without a hand-verified reference? | Before auto-generated gates go live | PARTIAL (2026-07-25 18:09 JDT): cross-oracle disagreement flagged the only error (1/1), 0 unanimous-wrong, and a 3× cheap ensemble beat 1× Opus on both accuracy and cost. But only 1 error occurred → weak evidence; see Q16. |
+| Q24 | Mutation score is measured on HAND-WRITTEN batteries. Auto-generated batteries (the ones that would serve unanticipated requests) are still unscored — run `mutation_check` against an auto-vertical's battery to close the loop. | Before auto-verticals run unattended | OPEN (raised 2026-07-25 19:56 JDT) |
+| Q23 | Disputed cases were excluded, losing coverage. | — | ANSWERED (2026-07-25 19:56 JDT): `resolve_disputed()` re-votes per pinned case; recovered cases rejoin the battery, unresolved ones route to human review (D38). |
+| Q22 | Auto-verticals need spec precision + a real buggy-control generator. | — | ANSWERED (2026-07-25 19:56 JDT): precision via narrow-domain sharpening + ensemble oracle (accept 1/3 → 3/3, D35); controls via execution-validated mutants — production batteries score 100% (15/15), D39. |
 | Q21 | Spec-ambiguity false rejects: broad coverage hits inputs the spec never addresses (e.g. `""` for a card number), where the reference's arbitrary choice becomes "truth" and correct code fails. Handle by constraining the declared domain to spec-defined inputs, and/or routing ambiguous-edge disagreements to spec clarification instead of auto-failing. | Before productizing the gate | OPEN (raised 2026-07-25 18:53 JDT) |
 | Q20 | Generator coverage bottleneck; should enumeration be automatic when the domain is enumerable? | — | ANSWERED (2026-07-25 18:53 JDT): yes — declare the domain, enumerate ≤100k exhaustively, fuzz otherwise. False accepts 0/15 (D28). Cost: more spec-ambiguity false rejects → Q21. |
 | Q19 | Does differential fuzzing close the L5 gap? | — | ANSWERED (2026-07-25 18:41 JDT): largely — L5 2/3 (was 0/3), false accepts 1/15 (was 3/15), false rejects 0/3. Residual miss is a generator-distribution artifact → D27, Q20. |

