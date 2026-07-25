@@ -12,7 +12,7 @@ with date AND time** (`YYYY-MM-DD HH:MM TZ`). Keep it terse. (Entries before
 
 ---
 
-## Current status (2026-07-25 23:55 JDT)
+## Current status (2026-07-25 23:59 JDT)
 
 A point-in-time snapshot — replaced wholesale on each update. The chronological
 record lives in *Milestones*; do not append history here.
@@ -82,7 +82,8 @@ each briefly masqueraded as a real finding. Verify surprising results before
 believing them.
 
 **Next action.** Push the independent mechanical-fault checkpoint through clean
-Windows/Linux CI. Once both hosted jobs reproduce it, internal zero-credit
+Windows/Linux CI after removing its accidental optional-SDK import. Once both
+hosted jobs reproduce it, internal zero-credit
 hardening is no longer the adoption blocker: the remaining evidence must come
 from genuinely outside developers and still begins at 0/20 developers, 0/5
 user-owned artifacts and 0/3 repeat users.
@@ -93,6 +94,7 @@ user-owned artifacts and 0/3 repeat users.
 
 | # | Date/time | Decision |
 |---|------|----------|
+| D59 | 2026-07-25 23:59 JDT | **A zero-API path must not import optional model dependencies.** The first hosted mechanical-benchmark run (`30174575349`) passed wheel setup and the paired benchmark on both OSes, then failed before mutation execution because `core.mutation` eagerly imported `core.llm` and therefore `anthropic`. Move that import inside `validated_mutants()`, the only paid generation path. A forced-SDK-unavailable import, Q24, and the 27/27 mechanical challenge all pass locally after the fix. |
 | D58 | 2026-07-25 23:55 JDT | **Challenge hand-authored cases with separately generated, execution-validated faults.** Each correct benchmark implementation has a marked mutation surface. Generic one-site mutations count only if they produce a wrong result on versioned domain-valid probes whose exact inputs are absent from the scored manifests; survivors are reported, never silently discarded. The first run killed 22/27 (81%): unanchored email regexes and damaged bottom-row indices survived. Adding different email-whitespace and bottom-row values to the scored cases raised the bounded result to 27/27 (100%). Require that score in the unified checkpoint and Windows/Linux CI, while stating plainly that six toy domains and a fixed mutation operator set do not estimate unknown-fault or production reliability. |
 | D57 | 2026-07-25 23:36 JDT | **Benchmark the public gate with paired controls and explicit failure semantics.** `logic-tools-v1` fixes one artifact and case set per domain, then invokes correct and deliberately broken hooks separately. Report false accepts, false rejects, diagnostic hits, total/median/p95 runtime, and category rollups; fail unless every correct control is accepted, every broken control rejected, and every rejection identifies the intended edge label. The initial corpus spans shipping, duration, email, slug, CSV and tic-tac-toe (12 subjects). Because faults and cases were hand-authored together, treat 12/12 as regression coverage only—not an unknown-fault rate, production reliability estimate, or adoption evidence. |
 | D56 | 2026-07-25 23:25 JDT | **Defer the difficult human-adoption step without pretending automation replaces it.** Use fresh Windows/Linux GitHub-hosted runners as the reproducible cold-environment proxy, and add a zero-API `turing-gate doctor` that checks Python/package identity, local-state writes, loopback binding, Playwright, Chromium presence, and a real browser launch. CI must build and install the wheel, diagnose setup, catch 3/3 demos, and accept the user example. These runs improve distribution confidence but count as 0 developers, 0 own artifacts, and 0 repeat users in the 20/5/3 test. |
@@ -164,7 +166,10 @@ user-owned artifacts and 0/3 repeat users.
   zero API spend. The paired result remains 12/12 decisions, 0 false
   accepts/rejects and 6/6 diagnostics. Integrated the perfect-score requirement
   into the unified checkpoint and clean-room workflow. Hosted reproduction is
-  pending. → D58.
+  pending. The first hosted attempt passed every earlier step on both OSes but
+  exposed an eager optional-SDK import before mutation execution; the dependency
+  was made lazy and verified with Anthropic imports forcibly blocked. → D58,
+  D59.
 - **2026-07-25 23:36 JDT** — **Paired logic-tool benchmark established.**
   Added six domains / twelve subjects with shared cases for each correct/broken
   pair: shipping and duration calculators, email validation, slug and CSV

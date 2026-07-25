@@ -25,7 +25,6 @@ import tempfile
 from pathlib import Path
 
 from .config import ORACLE_MODEL, get_logger
-from .llm import call, extract_block, extract_code
 from .sandbox import sandboxed_page
 
 log = get_logger("gate.mutation")
@@ -196,6 +195,11 @@ def validated_mutants(scaffold: str, slot: str, impl: str, behaviour: str,
                       invoke: str = DEFAULT_INVOKE,
                       excluded_inputs: list | None = None) -> list[dict]:
     """Generate mutants and keep only those with a demonstrated divergence."""
+    # Keep deterministic mechanical mutation usable in the public, no-AI
+    # dependency set. The optional Anthropic SDK is needed only on this paid
+    # generation path.
+    from .llm import call, extract_block, extract_code
+
     kept, tried = [], 0
     excluded = {
         json.dumps(args, sort_keys=True, default=str)
