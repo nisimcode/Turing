@@ -12,7 +12,7 @@ with date AND time** (`YYYY-MM-DD HH:MM TZ`). Keep it terse. (Entries before
 
 ---
 
-## Current status (2026-07-25 23:36 JDT)
+## Current status (2026-07-25 23:41 JDT)
 
 A point-in-time snapshot — replaced wholesale on each update. The chronological
 record lives in *Milestones*; do not append history here.
@@ -43,7 +43,7 @@ are excluded from the installed wheel.
 | Setup failures are locally diagnosable | `turing-gate doctor`: 8/8 healthy-environment checks PASS; forced missing-browser path returns not-ready with exact repair command |
 | The wheel works in clean hosted environments | first main run `30173582765`: Ubuntu PASS in 36s, Windows PASS in 53s; exact `v0.1.1` tag run `30173641636`: Ubuntu PASS in 38s, Windows PASS in 54s; install → doctor → 3 demos → user example, no retries |
 | The new tagged CLI is publicly fetchable | refreshed HTTPS `uvx` resolved `v0.1.1` to commit `1b06f3f`; `doctor --json` passed all 8 setup checks |
-| The public manifest path is stable across varied logic tools | paired `logic-tools-v1` benchmark: 6 domains / 12 subjects, 12/12 correct decisions, 0 false accepts, 0 false rejects, 6/6 intended diagnostics; local median 1.453s, p95 1.484s |
+| The public manifest path is stable across varied logic tools | paired `logic-tools-v1`: 6 domains / 12 subjects, 12/12 decisions, 0 false accepts/rejects, 6/6 diagnostics locally and in hosted run `30173955145`; local median/p95 1.453s/1.484s, Ubuntu 1.491s/2.069s, Windows 1.569s/1.908s |
 | The gate catches faults nobody here thought of | mutation score **100%**, 15/15 execution-validated mutants killed |
 | Auto-generated batteries have measured fault coverage | Caesar auto-battery mutation score **100%**, 5/5 execution-validated mutants killed over 498 independent probes |
 | Undefined inputs do not become false rejects | Q21 regression withheld 2/2 out-of-domain Luhn cases; correct implementation PASS, 0 false rejects |
@@ -160,7 +160,9 @@ subjects do not count toward 20/5/3.
   accepts, 0 false rejects, 6/6 intended diagnostic labels, median 1.453s and
   p95 1.484s per subject. The versioned index is directory-confined and its
   escape regression passes. Integrated into the unified $0 checkpoint and
-  clean-room workflow; hosted matrix result pending. → D57.
+  clean-room workflow. Hosted run `30173955145` passed on both systems with the
+  same 12/12, 0/0, 6/6 profile: Ubuntu median/p95 1.491s/2.069s and Windows
+  1.569s/1.908s. → D57.
 - **2026-07-25 23:27 JDT** — **v0.1.1 distribution hardening validated.**
   Added `turing-gate doctor` with human/JSON output and setup exit
   code `2`; healthy Windows checks pass 8/8 and a forced missing Chromium path
