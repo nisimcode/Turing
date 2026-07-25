@@ -12,7 +12,7 @@ with date AND time** (`YYYY-MM-DD HH:MM TZ`). Keep it terse. (Entries before
 
 ---
 
-## Current status (2026-07-25 23:25 JDT)
+## Current status (2026-07-25 23:27 JDT)
 
 A point-in-time snapshot — replaced wholesale on each update. The chronological
 record lives in *Milestones*; do not append history here.
@@ -24,8 +24,7 @@ requires no API key or hosted service. The earlier cascade, oracle, and
 auto-vertical work remains measured research, not the public product surface.
 
 **Where the code is.** Public repo `nisimcode/Turing` (branch `main`), licensed
-Apache 2.0 with release `v0.1.0` and a locally validated `v0.1.1` candidate.
-`gate/cli.py` exposes the packaged
+Apache 2.0 with releases `v0.1.0` and `v0.1.1`. `gate/cli.py` exposes the packaged
 `turing-gate` command; `gate/core/manifest.py` binds a local artifact, browser
 hook, domain schema, and exact cases; `gate/core/verify.py` and `sandbox.py`
 provide the fail-closed runtime. The wheel includes only the CLI, core, and
@@ -42,6 +41,7 @@ are excluded from the installed wheel.
 | The tagged release is publicly fetchable | refreshed `uvx --from git+https://github.com/nisimcode/Turing@v0.1.0 turing-gate demo` resolved public commit `0c04f61` and caught 3/3 defects |
 | The locked public/runtime Python dependency set is clean | experimental `uv audit`: 20 packages checked, no known vulnerabilities or adverse project statuses |
 | Setup failures are locally diagnosable | `turing-gate doctor`: 8/8 healthy-environment checks PASS; forced missing-browser path returns not-ready with exact repair command |
+| The wheel works in clean hosted environments | GitHub Actions run `30173582765`: Ubuntu install → doctor → demos → user example PASS in 36s; Windows PASS in 53s; no retries |
 | The gate catches faults nobody here thought of | mutation score **100%**, 15/15 execution-validated mutants killed |
 | Auto-generated batteries have measured fault coverage | Caesar auto-battery mutation score **100%**, 5/5 execution-validated mutants killed over 498 independent probes |
 | Undefined inputs do not become false rejects | Q21 regression withheld 2/2 out-of-domain Luhn cases; correct implementation PASS, 0 false rejects |
@@ -60,10 +60,10 @@ ones passed. Sell those as *working, accessible, complete* — never as *good*.
 **Adoption-release engineering ≈ 98%; adoption evidence = 0/20 developers,
 0/5 user-owned artifacts, 0/3 repeat users.** Apache licensing, local package,
 no-API manifest, three demonstrations, isolated-wheel smoke test, unified
-zero-credit regression, public repository, and tagged GitHub release are
-complete. `doctor` and clean Windows/Linux package CI are implemented locally;
-the first hosted matrix result is pending. Hosted runners are only a setup
-proxy: unassisted onboarding and outside adoption remain unproven. Q25’s
+zero-credit regression, public repository, and tagged GitHub releases are
+complete. `doctor` and clean Windows/Linux wheel CI pass locally and on both
+fresh hosted runners. Hosted runners are only a setup proxy: unassisted
+onboarding and outside adoption remain unproven. Q25’s
 prepared human sample
 now applies only to the experimental auto-vertical path and does not block the
 deterministic public verifier.
@@ -78,10 +78,10 @@ failure** — three today (floor `has_dom`, fence-matching regex, mutation hook)
 each briefly masqueraded as a real finding. Verify surprising results before
 believing them.
 
-**Next action.** Push the `v0.1.1` candidate, require fresh Windows and Linux
-hosted runners to pass install → doctor → demos → user example, then tag the
-validated state. After that, expand the correct/broken artifact benchmark while
-human recruitment is deferred. Hosted CI does not count toward 20/5/3.
+**Next action.** Expand the correct/broken artifact benchmark across several
+logic-tool domains while human recruitment is deferred. Measure false accepts,
+false rejects, runtime, and diagnostic clarity. Hosted CI does not count toward
+20/5/3.
 
 ---
 
@@ -150,14 +150,15 @@ human recruitment is deferred. Hosted CI does not count toward 20/5/3.
 
 ## Milestones completed
 
-- **2026-07-25 23:25 JDT** — **Local v0.1.1 distribution hardening
-  completed.** Added `turing-gate doctor` with human/JSON output and setup exit
+- **2026-07-25 23:27 JDT** — **v0.1.1 distribution hardening validated.**
+  Added `turing-gate doctor` with human/JSON output and setup exit
   code `2`; healthy Windows checks pass 8/8 and a forced missing Chromium path
   fails with the repair command. Added a no-cache Windows/Linux hosted-runner
   workflow that builds the wheel, installs Chromium (plus Linux system deps),
   runs doctor, catches 3/3 demos, and accepts the shipping example. The exact
   wheel and full zero-credit regression pass locally; 20 Python dependencies
-  audit clean. First hosted matrix result remains pending. → D56.
+  audit clean. First hosted matrix run `30173582765` passed without retries:
+  Ubuntu in 36s and Windows in 53s. → D56.
 - **2026-07-25 23:16 JDT** — **Public v0.1 release published.** Published the
   Apache-2.0 repository and GitHub release, attached the validated wheel and
   sdist, and pinned the no-clone README flow to immutable tag `v0.1.0`.
