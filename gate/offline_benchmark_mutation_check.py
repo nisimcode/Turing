@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+import tempfile
 import time
 from pathlib import Path
 
@@ -296,6 +297,61 @@ def run_mutation_benchmark(
     }
 
 
+def _configuration_guard_regressions() -> None:
+    """Prove malformed/contaminated benchmark inputs fail before execution."""
+    with tempfile.TemporaryDirectory(
+        prefix="turing-mutation-config-"
+    ) as folder:
+        root = Path(folder)
+        markerless = root / "markerless.html"
+        markerless.write_text(
+            "<!doctype html><script>const correct = x => x;</script>",
+            encoding="utf-8",
+        )
+        try:
+            _extract_correct(markerless)
+        except BenchmarkError as exc:
+            if "exactly one" not in str(exc):
+                raise AssertionError(str(exc)) from exc
+        else:
+            raise AssertionError("missing mutation markers were accepted")
+
+        probe_data = json.loads(DEFAULT_PROBES.read_text(encoding="utf-8"))
+        incomplete = root / "incomplete.json"
+        incomplete.write_text(
+            json.dumps({
+                **probe_data,
+                "domains": probe_data["domains"][:-1],
+            }),
+            encoding="utf-8",
+        )
+        try:
+            run_mutation_benchmark(DEFAULT_INDEX, incomplete)
+        except BenchmarkError as exc:
+            if "subjects mismatch" not in str(exc):
+                raise AssertionError(str(exc)) from exc
+        else:
+            raise AssertionError("incomplete mutation probe subjects accepted")
+
+        contaminated = root / "contaminated.json"
+        contaminated_data = json.loads(json.dumps(probe_data))
+        contaminated_data["domains"][0]["probes"][0] = {
+            "args": [99],
+            "expected": 8,
+        }
+        contaminated.write_text(
+            json.dumps(contaminated_data),
+            encoding="utf-8",
+        )
+        try:
+            run_mutation_benchmark(DEFAULT_INDEX, contaminated)
+        except BenchmarkError as exc:
+            if "duplicates a scored manifest case" not in str(exc):
+                raise AssertionError(str(exc)) from exc
+        else:
+            raise AssertionError("scored-case probe contamination accepted")
+
+
 def _print_report(report: dict) -> None:
     for row in report["domains"]:
         score = "n/a" if row["score"] is None else f"{row['score']:.0%}"
@@ -320,6 +376,7 @@ def _print_report(report: dict) -> None:
         f"survivors={summary['survivors']}, score={score}, "
         f"{summary['duration_ms']:.1f}ms"
     )
+    print("  configuration guards: PASS")
     print("  validation witnesses are disjoint from scored manifest cases")
     print("  API spend: $0")
 
@@ -344,12 +401,14 @@ def main(argv: list[str] | None = None) -> int:
     if args.minimum_per_domain > args.want_per_domain:
         parser.error("minimum-per-domain cannot exceed want-per-domain")
     try:
+        _configuration_guard_regressions()
         report = run_mutation_benchmark(
             args.index,
             args.probes,
             want_per_domain=args.want_per_domain,
             minimum_per_domain=args.minimum_per_domain,
         )
+        report["configuration_guards"] = True
     except BenchmarkError as exc:
         print(f"MECHANICAL BENCHMARK CONFIG ERROR: {exc}", file=sys.stderr)
         return 2

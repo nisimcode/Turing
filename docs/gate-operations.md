@@ -26,6 +26,7 @@ JSON manifest. It requires no model, API key, account, or hosted service:
 uv run turing-gate install-browser
 uv run turing-gate doctor
 uv run turing-gate demo
+uv run turing-gate init tool.html
 uv run turing-gate verify turing.json
 ```
 
@@ -41,6 +42,13 @@ machine-readable argument domain, and explicit input/expected-output cases.
 Artifact paths are confined to the manifest directory. A runtime-only manifest
 is allowed for containment diagnostics but emits a warning because it cannot
 establish correctness.
+
+`init` creates a schema-version-1 manifest beside an existing HTML artifact.
+It never guesses expected behavior: functional mode requires an explicit hook
+and at least one JSON case. Without them it produces a prominently labeled
+runtime-only starter. Creation validates through the same manifest loader,
+publishes atomically, rejects paths outside the manifest directory, and refuses
+overwrite unless `--force` is explicit.
 
 The public CLI records only a local audit trail at
 `.turing/telemetry.jsonl`; nothing is transmitted. Exit `0` means all declared

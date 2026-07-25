@@ -12,6 +12,7 @@ from pathlib import Path
 
 from .core.doctor import doctor_report
 from .core.manifest import ManifestError, verify_manifest
+from .core.starter import create_starter_manifest
 from .core.verify import print_verdict
 
 DEMOS = {
@@ -142,6 +143,38 @@ def _install_browser(args) -> int:
     ).returncode
 
 
+def _init(args) -> int:
+    result = create_starter_manifest(
+        args.artifact,
+        output_value=args.output,
+        name=args.name,
+        description=args.description,
+        hook=args.hook,
+        case_values=args.case,
+        domain_schema_value=args.domain_schema,
+        number_tolerance=args.number_tolerance,
+        force=args.force,
+    )
+    if args.json:
+        print(json.dumps(result, ensure_ascii=False, indent=2))
+        return 0
+
+    print(f"Created {result['manifest']}")
+    if result["runtime_only"]:
+        print(
+            "Mode: runtime-only — execution and containment only; "
+            "functional correctness is not yet checked."
+        )
+        print(
+            "Next: rerun with --hook and one or more explicit --case values, "
+            "or edit the manifest."
+        )
+    else:
+        print(f"Mode: functional — {result['cases']} explicit case(s).")
+    print(f"Verify: turing-gate verify \"{result['manifest']}\"")
+    return 0
+
+
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="turing-gate",
@@ -151,6 +184,50 @@ def _parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--version", action="version", version=_version())
     sub = parser.add_subparsers(dest="command", required=True)
+
+    initializing = sub.add_parser(
+        "init",
+        help="create a validated starter manifest beside an HTML artifact",
+    )
+    initializing.add_argument("artifact", help="path to a local HTML artifact")
+    initializing.add_argument(
+        "--output",
+        help="manifest path (default: turing.json beside the artifact)",
+    )
+    initializing.add_argument("--name", help="manifest name")
+    initializing.add_argument("--description", help="manifest description")
+    initializing.add_argument(
+        "--hook",
+        help="dotted browser function, for example window.__tool.calculate",
+    )
+    initializing.add_argument(
+        "--case",
+        action="append",
+        default=[],
+        metavar="JSON",
+        help=(
+            "repeatable JSON object with args and expected; requires --hook"
+        ),
+    )
+    initializing.add_argument(
+        "--domain-schema",
+        metavar="JSON",
+        help="optional supported argument-domain schema; requires --hook",
+    )
+    initializing.add_argument(
+        "--number-tolerance",
+        type=float,
+        help="optional absolute numeric comparison tolerance; requires --hook",
+    )
+    initializing.add_argument(
+        "--force",
+        action="store_true",
+        help="replace an existing output manifest",
+    )
+    initializing.add_argument(
+        "--json", action="store_true", help="emit machine-readable results"
+    )
+    initializing.set_defaults(run=_init)
 
     verifying = sub.add_parser(
         "verify", help="verify an artifact from a deterministic JSON manifest"

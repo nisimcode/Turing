@@ -41,28 +41,42 @@ jobs:
       - name: Install Chromium and Linux system dependencies
         if: runner.os == 'Linux'
         run: >-
-          uvx --from ./dist/turing_gate-0.1.1-py3-none-any.whl
+          uvx --from ./dist/turing_gate-0.1.2-py3-none-any.whl
           turing-gate install-browser --with-deps
 
       - name: Install Chromium
         if: runner.os == 'Windows'
         run: >-
-          uvx --from ./dist/turing_gate-0.1.1-py3-none-any.whl
+          uvx --from ./dist/turing_gate-0.1.2-py3-none-any.whl
           turing-gate install-browser
 
       - name: Diagnose the clean environment
         run: >-
-          uvx --from ./dist/turing_gate-0.1.1-py3-none-any.whl
+          uvx --from ./dist/turing_gate-0.1.2-py3-none-any.whl
           turing-gate doctor --json
 
       - name: Catch all bundled defects
         run: >-
-          uvx --from ./dist/turing_gate-0.1.1-py3-none-any.whl
+          uvx --from ./dist/turing_gate-0.1.2-py3-none-any.whl
           turing-gate demo
+
+      - name: Create a functional starter manifest
+        run: >-
+          uvx --from ./dist/turing_gate-0.1.2-py3-none-any.whl
+          turing-gate init examples/shipping/shipping.html
+          --output examples/shipping/ci-turing.json
+          --hook window.__turing.calculateShipping
+          --domain-schema '{"args":[{"type":"number","minimum":0}]}'
+          --case '{"label":"threshold","args":[100],"expected":0}'
+
+      - name: Accept the generated user manifest
+        run: >-
+          uvx --from ./dist/turing_gate-0.1.2-py3-none-any.whl
+          turing-gate verify examples/shipping/ci-turing.json --json
 
       - name: Accept the passing user example
         run: >-
-          uvx --from ./dist/turing_gate-0.1.1-py3-none-any.whl
+          uvx --from ./dist/turing_gate-0.1.2-py3-none-any.whl
           turing-gate verify examples/shipping/turing.json --json
 
       - name: Measure the paired logic-tool benchmark

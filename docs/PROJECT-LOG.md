@@ -12,7 +12,7 @@ with date AND time** (`YYYY-MM-DD HH:MM TZ`). Keep it terse. (Entries before
 
 ---
 
-## Current status (2026-07-26 00:03 JDT)
+## Current status (2026-07-26 00:13 JDT)
 
 A point-in-time snapshot — replaced wholesale on each update. The chronological
 record lives in *Milestones*; do not append history here.
@@ -36,7 +36,7 @@ are excluded from the installed wheel.
 
 | Claim | Evidence |
 |---|---|
-| An outside artifact can use the gate without Python changes or an API key | versioned JSON manifest: correct control PASS; directory escape and malformed domain schema rejected; bundled Wordle/calculator/exfiltration defects caught 3/3 |
+| An outside artifact can use the gate without Python changes or an API key | versioned JSON manifest: correct control PASS; directory escape and malformed domain schema rejected; `init` creates validated runtime-only or explicit-case functional starters; bundled Wordle/calculator/exfiltration defects caught 3/3 |
 | The public tool is independently installable | `uv build --no-sources` produced sdist + wheel; isolated `uvx --from <wheel> turing-gate demo` passed 3/3 |
 | The tagged release is publicly fetchable | refreshed `uvx --from git+https://github.com/nisimcode/Turing@v0.1.0 turing-gate demo` resolved public commit `0c04f61` and caught 3/3 defects |
 | The locked public/runtime Python dependency set is clean | experimental `uv audit`: 20 packages checked, no known vulnerabilities or adverse project statuses |
@@ -81,11 +81,9 @@ failure** — three today (floor `has_dom`, fence-matching regex, mutation hook)
 each briefly masqueraded as a real finding. Verify surprising results before
 believing them.
 
-**Next action.** Begin the genuine outside 20/5/3 adoption test. Internal
-zero-credit hardening is no longer the blocker: the clean package, paired
-controls and independent-fault challenge now reproduce on both hosted OSes.
-The remaining evidence must come from outside developers and still begins at
-0/20 developers, 0/5 user-owned artifacts and 0/3 repeat users.
+**Next action.** Push the v0.1.2 onboarding candidate through clean Windows and
+Linux, publish the tagged release if both pass, then begin the genuine outside
+20/5/3 adoption test. No further internal benchmark should delay that test.
 
 ---
 
@@ -93,6 +91,7 @@ The remaining evidence must come from outside developers and still begins at
 
 | # | Date/time | Decision |
 |---|------|----------|
+| D60 | 2026-07-26 00:13 JDT | **Finish pre-adoption engineering by removing manifest boilerplate without guessing correctness.** `turing-gate init` creates a version-1 manifest beside an existing confined HTML artifact. Functional mode requires an explicit hook and JSON cases; otherwise the result is prominently runtime-only. Validate through the production loader before atomic publication, refuse overwrite unless `--force`, and leave no partial file on invalid JSON/schema/path. The public regression covers runtime-only and functional success plus overwrite, malformed-constant and path-escape failures. The independently validated mutation benchmark now also self-tests missing markers, missing probe domains and probe/scored-case contamination before browser execution. Ship this bounded onboarding/harness improvement as v0.1.2, then stop substituting internal work for adoption evidence. |
 | D59 | 2026-07-25 23:59 JDT | **A zero-API path must not import optional model dependencies.** The first hosted mechanical-benchmark run (`30174575349`) passed wheel setup and the paired benchmark on both OSes, then failed before mutation execution because `core.mutation` eagerly imported `core.llm` and therefore `anthropic`. Move that import inside `validated_mutants()`, the only paid generation path. A forced-SDK-unavailable import, Q24, and the 27/27 mechanical challenge pass locally; corrected hosted run `30174711088` then reproduced 27/27 on both OSes. |
 | D58 | 2026-07-25 23:55 JDT | **Challenge hand-authored cases with separately generated, execution-validated faults.** Each correct benchmark implementation has a marked mutation surface. Generic one-site mutations count only if they produce a wrong result on versioned domain-valid probes whose exact inputs are absent from the scored manifests; survivors are reported, never silently discarded. The first run killed 22/27 (81%): unanchored email regexes and damaged bottom-row indices survived. Adding different email-whitespace and bottom-row values to the scored cases raised the bounded result to 27/27 (100%). Require that score in the unified checkpoint and Windows/Linux CI, while stating plainly that six toy domains and a fixed mutation operator set do not estimate unknown-fault or production reliability. |
 | D57 | 2026-07-25 23:36 JDT | **Benchmark the public gate with paired controls and explicit failure semantics.** `logic-tools-v1` fixes one artifact and case set per domain, then invokes correct and deliberately broken hooks separately. Report false accepts, false rejects, diagnostic hits, total/median/p95 runtime, and category rollups; fail unless every correct control is accepted, every broken control rejected, and every rejection identifies the intended edge label. The initial corpus spans shipping, duration, email, slug, CSV and tic-tac-toe (12 subjects). Because faults and cases were hand-authored together, treat 12/12 as regression coverage only—not an unknown-fault rate, production reliability estimate, or adoption evidence. |
@@ -157,6 +156,16 @@ The remaining evidence must come from outside developers and still begins at
 
 ## Milestones completed
 
+- **2026-07-26 00:13 JDT** — **v0.1.2 onboarding candidate completed
+  locally.** Added `turing-gate init` with explicit functional cases, honest
+  runtime-only fallback, path confinement, pre-publication production-schema
+  validation, atomic output, and opt-in overwrite. Public-path regression
+  proves both modes and the failure paths. Added three no-browser mutation
+  configuration guards. The full zero-credit checkpoint passed in 195.9s:
+  paired 12/12, diagnostics 6/6, mechanical 27/27, and all Q21-Q26 controls.
+  Built the wheel/sdist, found no known vulnerabilities in 20 dependencies,
+  then used an isolated wheel to generate and successfully verify a functional
+  shipping manifest. Hosted reproduction and release publication remain. → D60.
 - **2026-07-26 00:03 JDT** — **Independent-fault challenge reproduced in
   clean hosted environments.** Corrected run `30174711088` passed every step:
   Ubuntu in 2m36s and Windows in 2m50s. Both used 22 exact-disjoint probes and
@@ -678,6 +687,8 @@ The remaining evidence must come from outside developers and still begins at
 **`gate/core/`** — *the module.* Start here.
 - `doctor.py` — zero-API setup diagnostics for local state, loopback,
   Playwright, Chromium and a real browser launch.
+- `starter.py` — validated, atomic v1 manifest creation without inferred
+  correctness claims.
 - `manifest.py` — versioned user manifest, path/domain validation, hook
   execution, and deep expected-value comparison.
 - `verify.py` — the entry point: `verify(artifact, functional=...) -> Verdict`.
@@ -702,7 +713,7 @@ The remaining evidence must come from outside developers and still begins at
 
 **`gate/`** — current verticals, CLIs, and regressions only.
 - `cli.py` — packaged no-API
-  `turing-gate` verify/demo/doctor/install-browser command.
+  `turing-gate` init/verify/demo/doctor/install-browser command.
 - `demos/` — bundled Wordle, calculator, and exfiltration demonstrations.
 - Per vertical: a scaffold in `scaffold/` + a `*_spec.py` (`wordle`, `game2048`,
   `billsplit`, `calc`).

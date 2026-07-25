@@ -2,16 +2,19 @@
 
 from __future__ import annotations
 
+import io
 import json
 import os
 import sys
 import tempfile
+from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from gate.core.doctor import doctor_report
 from gate.core.manifest import ManifestError, load_manifest, verify_manifest
+from gate.cli import main as cli_main
 
 HERE = Path(__file__).resolve().parent
 
@@ -98,6 +101,95 @@ def main() -> int:
         else:
             raise AssertionError("malformed domain schema was accepted")
 
+        def quiet_cli(arguments: list[str]) -> int:
+            with redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()):
+                return cli_main(arguments)
+
+        runtime_starter = root / "runtime-starter.json"
+        assert quiet_cli([
+            "init", str(artifact), "--output", str(runtime_starter), "--json",
+        ]) == 0
+        runtime_manifest = load_manifest(runtime_starter)
+        assert runtime_manifest.runtime_only
+        _, runtime_verdict = verify_manifest(runtime_starter)
+        assert runtime_verdict.passed, runtime_verdict.summary()
+        original_starter = runtime_starter.read_bytes()
+        assert quiet_cli([
+            "init", str(artifact), "--output", str(runtime_starter),
+        ]) == 2
+        assert runtime_starter.read_bytes() == original_starter
+        assert quiet_cli([
+            "init",
+            str(artifact),
+            "--output",
+            str(runtime_starter),
+            "--name",
+            "replaced-starter",
+            "--force",
+        ]) == 0
+        assert load_manifest(runtime_starter).name == "replaced-starter"
+
+        functional_starter = root / "functional-starter.json"
+        assert quiet_cli([
+            "init",
+            str(artifact),
+            "--output",
+            str(functional_starter),
+            "--hook",
+            "window.__turing.add",
+            "--domain-schema",
+            '{"args":[{"type":"number"},{"type":"number"}]}',
+            "--number-tolerance",
+            "0.000000001",
+            "--case",
+            '{"label":"integer sum","args":[2,3],"expected":5}',
+            "--case",
+            '{"label":"negative sum","args":[-2,1],"expected":-1}',
+        ]) == 0
+        generated_manifest, generated_verdict = verify_manifest(
+            functional_starter
+        )
+        assert not generated_manifest.runtime_only
+        assert len(generated_manifest.cases) == 2
+        assert generated_verdict.passed, generated_verdict.summary()
+
+        # Refuse ambiguous/unsafe generation and leave no partial output.
+        missing_hook = root / "missing-hook.json"
+        assert quiet_cli([
+            "init",
+            str(artifact),
+            "--output",
+            str(missing_hook),
+            "--case",
+            '{"args":[1,2],"expected":3}',
+        ]) == 2
+        assert not missing_hook.exists()
+
+        invalid_case = root / "invalid-case.json"
+        assert quiet_cli([
+            "init",
+            str(artifact),
+            "--output",
+            str(invalid_case),
+            "--hook",
+            "window.__turing.add",
+            "--case",
+            '{"args": [1, 2], "expected": NaN}',
+        ]) == 2
+        assert not invalid_case.exists()
+
+        nested = root / "nested"
+        nested.mkdir()
+        escaped_output = nested / "turing.json"
+        assert quiet_cli([
+            "init",
+            str(artifact),
+            "--output",
+            str(escaped_output),
+        ]) == 2
+        assert not escaped_output.exists()
+        assert not list(root.glob(".turing-starter-*.json"))
+
         expected = {
             "wordle": "manifest_cases",
             "calculator": "manifest_cases",
@@ -136,6 +228,9 @@ def main() -> int:
     print("  valid user manifest accepted")
     print("  directory escape rejected")
     print("  malformed domain schema rejected")
+    print("  init runtime-only starter created without overstating coverage")
+    print("  init functional starter verified against explicit cases")
+    print("  init overwrite, malformed JSON, and path escape rejected")
     print("  Wordle duplicate bug caught")
     print("  calculator negative-division bug caught")
     print("  four-vector exfiltration caught")

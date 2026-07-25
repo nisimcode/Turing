@@ -45,9 +45,9 @@ the intended defect is caught.
 Run the tagged release without cloning:
 
 ```bash
-uvx --from git+https://github.com/nisimcode/Turing@v0.1.1 turing-gate install-browser
-uvx --from git+https://github.com/nisimcode/Turing@v0.1.1 turing-gate doctor
-uvx --from git+https://github.com/nisimcode/Turing@v0.1.1 turing-gate demo
+uvx --from git+https://github.com/nisimcode/Turing@v0.1.2 turing-gate install-browser
+uvx --from git+https://github.com/nisimcode/Turing@v0.1.2 turing-gate doctor
+uvx --from git+https://github.com/nisimcode/Turing@v0.1.2 turing-gate demo
 ```
 
 ## Verify your own artifact
@@ -84,6 +84,24 @@ Place a `turing.json` next to the HTML:
   ]
 }
 ```
+
+You can create and validate that starter without hand-writing the outer
+manifest structure:
+
+```bash
+uv run turing-gate init shipping.html \
+  --hook window.__turing.calculateShipping \
+  --domain-schema '{"args":[{"type":"number","minimum":0}]}' \
+  --case '{"label":"below threshold","args":[99],"expected":8}' \
+  --case '{"label":"at threshold","args":[100],"expected":0}' \
+  --case '{"label":"above threshold","args":[250],"expected":0}'
+```
+
+With no `--hook`, `init` creates a clearly labeled runtime-only starter and
+warns that functional correctness is not checked. It refuses to overwrite an
+existing manifest unless `--force` is explicit. Artifact paths remain confined
+to the manifest directory, and malformed schemas or cases leave no partial
+file.
 
 Then run:
 
@@ -196,8 +214,8 @@ Build and validate the distributable package:
 
 ```bash
 uv build --no-sources
-uvx --from dist/turing_gate-0.1.1-py3-none-any.whl turing-gate doctor
-uvx --from dist/turing_gate-0.1.1-py3-none-any.whl turing-gate demo
+uvx --from dist/turing_gate-0.1.2-py3-none-any.whl turing-gate doctor
+uvx --from dist/turing_gate-0.1.2-py3-none-any.whl turing-gate demo
 ```
 
 The `Clean-room package` GitHub Actions workflow repeats the wheel-based flow on
@@ -255,7 +273,8 @@ The 30-day validation target is:
 
 | Path | Purpose |
 |---|---|
-| `gate/cli.py` | Public `turing-gate` CLI |
+| `gate/cli.py` | Public `turing-gate` init/verify/demo/doctor CLI |
+| `gate/core/starter.py` | Validated, atomic starter-manifest creation |
 | `gate/core/manifest.py` | Versioned user manifest validation and execution |
 | `gate/core/verify.py` | Runtime + functional verification entry point |
 | `gate/core/sandbox.py` | Temporary-origin, outbound-blocking browser context |
