@@ -12,7 +12,7 @@ with date AND time** (`YYYY-MM-DD HH:MM TZ`). Keep it terse. (Entries before
 
 ---
 
-## Current status (2026-07-26 00:17 JDT)
+## Current status (2026-07-26 00:20 JDT)
 
 A point-in-time snapshot — replaced wholesale on each update. The chronological
 record lives in *Milestones*; do not append history here.
@@ -24,13 +24,14 @@ requires no API key or hosted service. The earlier cascade, oracle, and
 auto-vertical work remains measured research, not the public product surface.
 
 **Where the code is.** Public repo `nisimcode/Turing` (branch `main`), licensed
-Apache 2.0 with releases `v0.1.0` and `v0.1.1`. `gate/cli.py` exposes the packaged
-`turing-gate` command; `gate/core/manifest.py` binds a local artifact, browser
-hook, domain schema, and exact cases; `gate/core/verify.py` and `sandbox.py`
-provide the fail-closed runtime. The wheel includes only the CLI, core, and
-three bundled demonstrations. Model-assisted auto-vertical generation, review
-research, Q21-Q26 runners, and historical evidence stay in the source tree but
-are excluded from the installed wheel.
+Apache 2.0 with releases `v0.1.0`, `v0.1.1` and `v0.1.2`. `gate/cli.py`
+exposes the packaged `turing-gate` command; `gate/core/manifest.py` binds a
+local artifact, browser hook, domain schema, and exact cases;
+`gate/core/verify.py` and `sandbox.py` provide the fail-closed runtime. The
+wheel includes only the CLI, core, and three bundled demonstrations.
+Model-assisted auto-vertical generation, review research, Q21-Q26 runners,
+and historical evidence stay in the source tree but are excluded from the
+installed wheel.
 
 **What is proven (with numbers).**
 
@@ -44,6 +45,7 @@ are excluded from the installed wheel.
 | The wheel works in clean hosted environments | first main run `30173582765`: Ubuntu PASS in 36s, Windows PASS in 53s; exact `v0.1.1` tag run `30173641636`: Ubuntu PASS in 38s, Windows PASS in 54s; install → doctor → 3 demos → user example, no retries |
 | A clean user can generate rather than hand-write the manifest shell | v0.1.2 candidate run `30175194327`: built-wheel `init` created a functional manifest and its immediate verification passed on Ubuntu and Windows; full jobs passed in 2m37s/2m55s |
 | The new tagged CLI is publicly fetchable | refreshed HTTPS `uvx` resolved `v0.1.1` to commit `1b06f3f`; `doctor --json` passed all 8 setup checks |
+| The final onboarding release is publicly fetchable | exact `v0.1.2` tag run `30175328116` passed Ubuntu in 2m30s and Windows in 2m55s; GitHub release includes wheel + sdist; refreshed HTTPS `uvx` resolved commit `b5f94e3` and reported version `0.1.2` |
 | The public manifest path is stable across varied logic tools | paired `logic-tools-v1`: 6 domains / 12 subjects, 12/12 decisions, 0 false accepts/rejects, 6/6 diagnostics locally and in hosted run `30173955145`; local median/p95 1.453s/1.484s, Ubuntu 1.491s/2.069s, Windows 1.569s/1.908s |
 | The paired cases resist separately generated faults | six-domain mechanical challenge: initial 22/27 killed (81%); five survivors exposed missing email-anchor and bottom-row cases; distinct scored values raised the result to 27/27 (100%) while 22 validation probes remain exact-disjoint; hosted run `30174711088` reproduced 27/27 on Ubuntu and Windows |
 | The gate catches faults nobody here thought of | mutation score **100%**, 15/15 execution-validated mutants killed |
@@ -61,16 +63,15 @@ checkable pure function (games, calculators, validators). Content/UI is
 **floor-only**: objective checks caught 5/5 structural defects but 2/2 subjective
 ones passed. Sell those as *working, accessible, complete* — never as *good*.
 
-**Adoption-release engineering ≈ 99%; adoption evidence = 0/20 developers,
-0/5 user-owned artifacts, 0/3 repeat users.** Apache licensing, local package,
-no-API manifest, three demonstrations, isolated-wheel smoke test, unified
-zero-credit regression, public repository, and tagged GitHub releases are
-complete. `doctor` and clean Windows/Linux wheel CI pass locally and on both
-fresh hosted runners. Hosted runners are only a setup proxy: unassisted
-onboarding and outside adoption remain unproven. Q25’s
-prepared human sample
-now applies only to the experimental auto-vertical path and does not block the
-deterministic public verifier.
+**Defined pre-adoption engineering is complete for v0.1.2; adoption evidence =
+0/20 developers, 0/5 user-owned artifacts, 0/3 repeat users.** Apache
+licensing, local package, no-API manifest, three demonstrations, isolated-wheel
+smoke test, unified zero-credit regression, public repository, and tagged
+GitHub releases are complete. `doctor` and clean Windows/Linux wheel CI pass
+locally and on both fresh hosted runners. Hosted runners are only a setup
+proxy: unassisted onboarding and outside adoption remain unproven. Q25’s
+prepared human sample now applies only to the experimental auto-vertical path
+and does not block the deterministic public verifier.
 
 **Standing caveats.** Sample sizes are small throughout (directional, not proof).
 The gate is a correctness check, **not a security boundary** — an arbitrary
@@ -82,9 +83,10 @@ failure** — three today (floor `has_dom`, fence-matching regex, mutation hook)
 each briefly masqueraded as a real finding. Verify surprising results before
 believing them.
 
-**Next action.** Tag and publish the now-hosted-green v0.1.2 artifacts, verify
-the public tag, then begin the genuine outside 20/5/3 adoption test. No further
-internal benchmark should delay that test.
+**Next action.** Begin the genuine outside 20/5/3 adoption test. The tagged
+v0.1.2 release, public fetch, onboarding flow, exact-tag clean-room matrix and
+all zero-credit checkpoints are complete. No further internal benchmark should
+delay that test.
 
 ---
 
@@ -157,6 +159,14 @@ internal benchmark should delay that test.
 
 ## Milestones completed
 
+- **2026-07-26 00:20 JDT** — **v0.1.2 published; pre-adoption engineering
+  wrapped.** Exact tag `b5f94e3` passed the complete clean-room matrix in run
+  `30175328116`: Ubuntu 2m30s, Windows 2m55s, including built-wheel manifest
+  generation/verification, static example, 12/12 paired decisions and 27/27
+  mutants. Published the wheel and sdist at the GitHub v0.1.2 release. A
+  refreshed public HTTPS `uvx` resolved the tag to `b5f94e3` and reported
+  `0.1.2`. The next evidence is outside adoption, not another internal proxy.
+  → D60.
 - **2026-07-26 00:13 JDT** — **v0.1.2 onboarding candidate completed
   locally.** Added `turing-gate init` with explicit functional cases, honest
   runtime-only fallback, path confinement, pre-publication production-schema
