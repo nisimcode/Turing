@@ -1,0 +1,34 @@
+# ---- Secrets: never commit ----
+.env
+.env.*
+!.env.example
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.uv/
+
+# ---- Generated model output (regenerable by re-running the scripts) ----
+gate/corpus/
+eval/artifacts/
+
+# ---- Browser automation / test output ----
+test-results/
+playwright-report/
+*.webm
+*.zip
+
+# ---- Local tooling ----
+.claude/settings.local.json
+
+# ---- OS / editors ----
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
+*.swp
+*~

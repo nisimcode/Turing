@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Calculator</title>
+<style>
+  body { font-family: sans-serif; background:#1b1b1f; color:#eee; text-align:center; padding:24px; }
+  h1 { color:#7db3ff; }
+  input { padding:8px; width:240px; font-size:16px; }
+  button { padding:8px 16px; margin-left:6px; }
+  #out { margin-top:16px; font-size:22px; }
+</style>
+</head>
+<body>
+  <h1>Expression Calculator</h1>
+  <input id="expr" value="2+3*4-6/2"><button id="go">=</button>
+  <div id="out"></div>
+  <script>
+    // === MODEL LOGIC SLOT: the model supplies evaluate(expr) ===
+    /*__LOGIC_SLOT__*/
+    // === END SLOT ===
+
+    // Scaffold we OWN: working UI + testable hook, by construction.
+    document.getElementById('go').onclick = () => {
+      try {
+        document.getElementById('out').textContent =
+          '= ' + evaluate(document.getElementById('expr').value);
+      } catch (e) {
+        document.getElementById('out').textContent = 'error';
+      }
+    };
+    window.__tool = { evaluate(expr) { return evaluate(expr); } };
+  </script>
+</body>
+</html>

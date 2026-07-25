@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Wordle</title>
+<style>
+  body { font-family: sans-serif; background:#121213; color:#fff; text-align:center; }
+  h1 { background:#538d4e; padding:10px; margin:0; letter-spacing:2px; }
+  #board { margin:16px auto; }
+  .row { display:block; }
+  .tile { display:inline-block; width:44px; height:44px; line-height:44px;
+          border:2px solid #3a3a3c; margin:3px; font-size:22px; }
+  .G { background:#538d4e; border-color:#538d4e; }
+  .Y { background:#b59f3b; border-color:#b59f3b; }
+  .B { background:#3a3a3c; }
+  input { padding:6px; text-transform:uppercase; }
+  button { padding:6px 12px; }
+  #msg { margin-top:10px; height:20px; }
+</style>
+</head>
+<body>
+  <h1>WORDLE</h1>
+  <div id="board"></div>
+  <input id="g" maxlength="5" placeholder="guess"><button id="go">Guess</button>
+  <div id="msg"></div>
+  <script>
+    // === MODEL LOGIC SLOT: the model supplies computeFeedback(guess, answer) ===
+    /*__LOGIC_SLOT__*/
+    // === END SLOT ===
+
+    // Scaffold we OWN: guarantees a working UI + the testable hook by construction.
+    let secret = "CRANE";
+    let row = 0;
+    const ROWS = 6;
+    const board = document.getElementById('board');
+    for (let r = 0; r < ROWS; r++) {
+      const rd = document.createElement('div');
+      rd.className = 'row';
+      for (let c = 0; c < 5; c++) {
+        const t = document.createElement('span');
+        t.className = 'tile';
+        rd.appendChild(t);
+      }
+      board.appendChild(rd);
+    }
+    function render(guess, fb) {
+      const tiles = board.children[row].children;
+      for (let i = 0; i < 5; i++) {
+        tiles[i].textContent = guess[i];
+        tiles[i].classList.add(fb[i]);
+      }
+    }
+    function submit() {
+      const g = document.getElementById('g').value.toUpperCase();
+      if (g.length !== 5 || row >= ROWS) return;
+      const fb = computeFeedback(g, secret);
+      render(g, fb);
+      if (fb === 'GGGGG') { document.getElementById('msg').textContent = 'You win!'; row = ROWS; }
+      else { row++; if (row >= ROWS) document.getElementById('msg').textContent = 'Answer: ' + secret; }
+      document.getElementById('g').value = '';
+    }
+    document.getElementById('go').onclick = submit;
+
+    // Testable hook, wired to the model's logic -- present by construction.
+    window.__wordle = {
+      setAnswer(w) { secret = w.toUpperCase(); },
+      guess(w) { return computeFeedback(w.toUpperCase(), secret); }
+    };
+  </script>
+</body>
+</html>

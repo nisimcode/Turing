@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Bill Splitter</title>
+<style>
+  body { font-family: sans-serif; background:#f4f1ea; color:#333; text-align:center; padding:20px; }
+  h1 { color:#c0603a; }
+  .card { display:inline-block; background:#fff; padding:20px 28px; border-radius:10px;
+          box-shadow:0 2px 10px rgba(0,0,0,.08); text-align:left; }
+  label { display:block; margin:8px 0 2px; font-size:14px; }
+  input { padding:6px; width:160px; }
+  button { margin-top:14px; padding:8px 16px; background:#c0603a; color:#fff;
+           border:none; border-radius:6px; cursor:pointer; }
+  #out { margin-top:14px; font-size:15px; white-space:pre-line; }
+</style>
+</head>
+<body>
+  <h1>Bill Splitter</h1>
+  <div class="card">
+    <label>Subtotal ($)</label><input id="subtotal" type="number" value="100.00" step="0.01">
+    <label>Tip (%)</label><input id="tip" type="number" value="15">
+    <label>People</label><input id="people" type="number" value="3">
+    <button id="go">Split</button>
+    <div id="out"></div>
+  </div>
+  <script>
+    // === MODEL LOGIC SLOT: the model supplies splitBill(subtotalCents, tipPercent, people) ===
+    /*__LOGIC_SLOT__*/
+    // === END SLOT ===
+
+    // Scaffold we OWN: working UI + testable hook, by construction.
+    function fmt(cents) { return '$' + (cents / 100).toFixed(2); }
+    document.getElementById('go').onclick = () => {
+      const subtotalCents = Math.round(parseFloat(document.getElementById('subtotal').value) * 100);
+      const tipPercent = parseInt(document.getElementById('tip').value, 10);
+      const people = parseInt(document.getElementById('people').value, 10);
+      if (!(subtotalCents >= 0 && tipPercent >= 0 && people >= 1)) return;
+      const shares = splitBill(subtotalCents, tipPercent, people);
+      const total = shares.reduce((a, b) => a + b, 0);
+      document.getElementById('out').textContent =
+        'Total (incl. tip): ' + fmt(total) + '\n' +
+        'Per person: ' + shares.map(fmt).join(', ');
+    };
+
+    // Testable hook, wired to the model's logic -- present by construction.
+    window.__tool = {
+      split(subtotalCents, tipPercent, people) {
+        return splitBill(subtotalCents, tipPercent, people);
+      }
+    };
+  </script>
+</body>
+</html>
