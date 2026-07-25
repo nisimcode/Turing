@@ -1,27 +1,34 @@
 """Oracle construction and verification.
 
-Implements the design validated in `stress_consensus.py` / `stress_unanimous.py`:
+Implements the design validated by the archived consensus experiments:
 
   * a battery is DRAFTED by the strong tier (it chooses good test inputs), but
   * the expected VALUES are then recomputed independently by a tier-diverse
     ensemble on pinned inputs -- a narrow task every tier does well (measured
     97-100%), unlike free-form battery writing where errors appear;
-  * disagreement is a TRIPWIRE, not a vote: a disputed case is dropped rather
-    than guessed, because a wrong expectation rejects correct code and is
-    indistinguishable from a real bug (Q21).
-
-Dropping is deliberate: a smaller correct oracle beats a larger wrong one.
+  * disagreement is a TRIPWIRE, not a vote: disputed cases receive a focused
+    second pass; anything still unresolved is withheld from pass/fail evidence
+    and makes the vertical provisional pending human review.
 """
 
 from __future__ import annotations
 
 import json
 from collections import Counter
+from dataclasses import dataclass
 
 from .config import ORACLE_ENSEMBLE, ORACLE_MODEL, get_logger
+from .domain import filter_cases
 from .llm import call, extract_block
 
 log = get_logger("gate.oracle")
+
+
+@dataclass
+class OracleBuild:
+    battery: list[dict]
+    disputed: list[dict]
+    clarifications: list[dict]
 
 DRAFT_PROMPT = """Produce a TEST ORACLE for this function.
 
@@ -58,7 +65,9 @@ def draft_battery(signature: str, behaviour: str, domain: str,
                   n: int = 12) -> list[dict]:
     raw = call(ORACLE_MODEL, DRAFT_PROMPT.format(
         signature=signature, behaviour=behaviour, domain=domain, n=n),
-        max_tokens=2000)
+        # Large independent probe pools need room to finish their JSON. The
+        # old fixed 2k cap silently truncated a 40-case Q24 draft to nothing.
+        max_tokens=min(6000, max(2000, n * 150)))
     block = extract_block(raw, "json")
     if not block:
         return []
@@ -86,13 +95,50 @@ def verify_battery(signature: str, behaviour: str, battery: list[dict],
                                      n=len(inputs), inputs=listing)
 
     votes = []
+    model_occurrences = Counter()
     for model in ensemble:
-        block = extract_block(call(model, prompt, max_tokens=2000), "json")
-        try:
-            vals = json.loads(block).get("expected", []) if block else []
-        except json.JSONDecodeError:
-            vals = []
-        vals = (vals + [None] * len(inputs))[:len(inputs)]
+        occurrence = model_occurrences[model]
+        model_occurrences[model] += 1
+        # The ensemble intentionally contains two independent cheap-tier
+        # samples. They may share a prompt, but must never share a cache entry.
+        cache_variant = (
+            None if occurrence == 0 else f"independent-sample-{occurrence}"
+        )
+        vals = []
+        for attempt in range(2):
+            retry_note = (
+                "\n\nYour previous response was malformed or had the wrong "
+                f"number of values. Return exactly {len(inputs)} values."
+                if attempt else ""
+            )
+            block = extract_block(
+                call(
+                    model,
+                    prompt + retry_note,
+                    max_tokens=2400,
+                    cache_variant=cache_variant,
+                ),
+                "json",
+            )
+            try:
+                candidate = (
+                    json.loads(block).get("expected", []) if block else []
+                )
+            except json.JSONDecodeError:
+                candidate = []
+            if isinstance(candidate, list) and len(candidate) == len(inputs):
+                vals = candidate
+                break
+            log.warning(
+                "oracle voter %s returned %d/%d values (attempt %d/2)",
+                model,
+                len(candidate) if isinstance(candidate, list) else 0,
+                len(inputs),
+                attempt + 1,
+            )
+        if not vals:
+            log.error("oracle voter %s failed both batch attempts", model)
+            vals = [None] * len(inputs)
         votes.append(vals)
 
     agreed, disputed = [], []
@@ -113,6 +159,8 @@ def verify_battery(signature: str, behaviour: str, battery: list[dict],
     if disputed:
         log.warning("dropped %d/%d disputed case(s) -- oracle uncertain",
                     len(disputed), len(battery))
+        for case in disputed[:3]:
+            log.info("dispute sample %s -> %s", case["args"], case["values"])
     return agreed, disputed
 
 
@@ -148,8 +196,20 @@ def resolve_disputed(signature: str, behaviour: str, disputed: list[dict],
         prompt = FOCUSED_PROMPT.format(signature=signature, behaviour=behaviour,
                                        args=json.dumps(case["args"]))
         votes = []
+        model_occurrences = Counter()
         for model in ensemble:
-            block = extract_block(call(model, prompt, max_tokens=1200), "json")
+            occurrence = model_occurrences[model]
+            model_occurrences[model] += 1
+            cache_variant = (
+                None if occurrence == 0
+                else f"independent-sample-{occurrence}"
+            )
+            block = extract_block(call(
+                model,
+                prompt,
+                max_tokens=1200,
+                cache_variant=cache_variant,
+            ), "json")
             try:
                 votes.append(json.loads(block)["expected"] if block else None)
             except (json.JSONDecodeError, KeyError):
@@ -167,17 +227,27 @@ def resolve_disputed(signature: str, behaviour: str, disputed: list[dict],
     return recovered, unresolved
 
 
-def build_oracle(signature: str, behaviour: str, domain: str, n: int = 12,
-                 resolve: bool = True) -> tuple[list[dict], list[dict]]:
-    """Draft a battery, ensemble-verify it, then try to recover disputes.
-
-    Returns (battery, still_disputed).
-    """
+def build_oracle_detailed(signature: str, behaviour: str, domain: str,
+                          domain_schema: dict | None, n: int = 12,
+                          resolve: bool = True) -> OracleBuild:
+    """Build an oracle while enforcing its machine-readable input domain."""
     draft = draft_battery(signature, behaviour, domain, n=n)
+    if domain_schema is None:
+        clarifications = [{
+            "reason": "missing machine-readable domain schema",
+            "domain": domain,
+        }]
+    else:
+        draft, clarifications = filter_cases(draft, domain_schema)
+        if clarifications:
+            log.warning(
+                "withheld %d generated case(s) outside the declared domain",
+                len(clarifications),
+            )
     agreed, disputed = verify_battery(signature, behaviour, draft)
     if resolve and disputed:
         recovered, disputed = resolve_disputed(signature, behaviour, disputed)
         agreed.extend(recovered)
         log.info("dispute resolution: recovered %d, %d remain",
                  len(recovered), len(disputed))
-    return agreed, disputed
+    return OracleBuild(agreed, disputed, clarifications)

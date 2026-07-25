@@ -16,6 +16,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from gate.core import print_verdict, verify            # noqa: E402
+from gate.core.lifecycle import ApprovalRequired, require_approved  # noqa: E402
 
 VERTICALS = {}
 
@@ -39,7 +40,25 @@ def main() -> int:
     ap.add_argument("artifacts", nargs="+", help="HTML file(s) to verify")
     ap.add_argument("--vertical", help="functional layer, e.g. wordle, "
                                        "game2048, billsplit, calc")
+    ap.add_argument(
+        "--require-approved",
+        action="store_true",
+        help="fail closed unless this exact vertical revision is approved",
+    )
+    ap.add_argument(
+        "--revision",
+        help="SHA-256 revision identity used with --require-approved",
+    )
     args = ap.parse_args()
+
+    if args.require_approved:
+        if not args.vertical or not args.revision:
+            ap.error("--require-approved needs both --vertical and --revision")
+        try:
+            require_approved(args.vertical, args.revision)
+        except (ApprovalRequired, ValueError) as exc:
+            print(f"RELEASE BLOCKED: {exc}", file=sys.stderr)
+            return 2
 
     functional = _load_vertical(args.vertical) if args.vertical else None
     if not functional:
@@ -49,7 +68,7 @@ def main() -> int:
 
     failures = 0
     for a in args.artifacts:
-        v = verify(a, functional=functional)
+        v = verify(a, functional=functional, vertical=args.vertical or "")
         print_verdict(v)
         failures += 0 if v.passed else 1
 

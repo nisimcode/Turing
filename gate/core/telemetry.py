@@ -12,16 +12,13 @@ from __future__ import annotations
 import json
 import time
 from collections import Counter
-from pathlib import Path
 
 from .config import ROOT, get_logger
 
 log = get_logger("gate.telemetry")
 LOG_PATH = ROOT / "gate" / "telemetry.jsonl"
 
-# Baselines from stress_consensus.py / oracle_consensus.py
-FLAG_RATE_CANONICAL = 0.03
-FLAG_RATE_ADVERSARIAL = 0.50
+# Baselines from archive/gate-experiments/{stress,oracle}_consensus.py
 FLAG_RATE_CEILING = 0.60      # above this the spec is fighting the models
 FLAG_RATE_FLOOR = 0.005       # below this on a NEW vertical: suspicious
 

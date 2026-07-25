@@ -12,16 +12,18 @@ environment (CI, a container with just Playwright).
 """
 
 from .config import (CHEAP, MID, ORACLE_ENSEMBLE, ORACLE_MODEL, PRICING, STRONG,
-                     TIERS, Verdict, get_logger, load_api_key)
+                     Verdict, get_logger, load_api_key)
 from .sandbox import sandboxed_page
 from .verify import print_verdict, verify
 
-_LAZY = {"call", "extract_code", "cost_report", "reset_cost", "total_cost",
-         "client"}
+_LAZY = {
+    "call", "extract_code", "cost_report", "cache_report", "reset_cost",
+    "total_cost", "last_response_cost", "client", "LLMCallBlocked",
+}
 
 __all__ = [
     "verify", "print_verdict", "Verdict", "sandboxed_page",
-    "CHEAP", "MID", "STRONG", "TIERS", "PRICING",
+    "CHEAP", "MID", "STRONG", "PRICING",
     "ORACLE_MODEL", "ORACLE_ENSEMBLE", "load_api_key", "get_logger",
     *sorted(_LAZY),
 ]

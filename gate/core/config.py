@@ -19,7 +19,6 @@ GATE = ROOT / "gate"
 CHEAP = "claude-haiku-4-5"
 MID = "claude-sonnet-5"
 STRONG = "claude-opus-4-8"
-TIERS = (CHEAP, MID, STRONG)
 
 # price per 1M tokens: (input, output)
 PRICING = {
@@ -37,11 +36,8 @@ ORACLE_MODEL = STRONG
 ORACLE_ENSEMBLE = (CHEAP, CHEAP, MID, STRONG)
 
 # --- limits ----------------------------------------------------------------
-ENUM_CAP = 100_000        # enumerate domains up to this size, else fuzz (D28)
-FUZZ_N = 20_000
 PAGE_TIMEOUT_MS = 10_000
 SETTLE_MS = 600
-EXEC_BUDGET_MS = 15_000   # hard ceiling on in-page work
 
 
 @dataclass(frozen=True)

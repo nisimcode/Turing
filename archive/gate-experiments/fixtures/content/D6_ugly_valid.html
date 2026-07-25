@@ -1,0 +1,63 @@
+<!doctype html><!-- Archived experiment fixture. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ember & Oak — Coffee Roastery</title>
+<style>
+  :root { --ink:#241c17; --paper:#00ff00; --accent:#6b008b; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:'Comic Sans MS',cursive; color:var(--ink); background:var(--paper); }
+  header { padding:20px 24px; display:flex; justify-content:space-between; align-items:center;
+           border-bottom:1px solid #e3d9cc; flex-wrap:wrap; gap:12px; }
+  .brand { font-size:22px; letter-spacing:1px; }
+  nav a { color:var(--ink); margin-left:18px; text-decoration:none; }
+  section { padding:44px 24px; max-width:900px; margin:0 auto; }
+  h1 { font-size:34px; margin:0 0 12px; }
+  h2 { font-size:24px; margin:0 0 10px; }
+  p { line-height:1.6; max-width:60ch; }
+  .cta { display:inline-block; background:var(--accent); color:#fff; padding:12px 22px;
+         border:none; border-radius:4px; font-size:16px; cursor:pointer; }
+  .grid { display:flex; flex-wrap:wrap; gap:18px; }
+  .card { flex:1 1 240px; background:#ffff00; border:1px solid #e3d9cc; padding:18px; border-radius:6px; }
+  footer { padding:26px 24px; border-top:1px solid #e3d9cc; font-size:14px; }
+  img { max-width:100%; }
+</style>
+</head>
+<body>
+  <header>
+    <div class="brand">Ember &amp; Oak</div>
+    <nav><a href="#about">About</a><a href="#pricing">Pricing</a><a href="#contact">Contact</a></nav>
+  </header>
+
+  <section id="hero">
+    <h1>Slow-roasted, small batch, honestly priced.</h1>
+    <p>We roast in twelve-kilo batches three mornings a week, so the bag on your
+       shelf is rarely more than four days off the drum.</p>
+    <button class="cta">Order a bag</button>
+  </section>
+
+  <section id="about">
+    <h2>About</h2>
+    <p>Ember &amp; Oak began in a converted garage in 2019 and now supplies
+       thirty cafés across the region. We buy directly from growers.</p>
+  </section>
+
+  <section id="pricing">
+    <h2>Pricing</h2>
+    <div class="grid">
+      <div class="card"><h3>Single bag</h3><p>250g, roasted to order. $18.</p></div>
+      <div class="card"><h3>Monthly</h3><p>Two bags a month, free delivery. $32.</p></div>
+      <div class="card"><h3>Wholesale</h3><p>From 5kg. Talk to us.</p></div>
+    </div>
+  </section>
+
+  <section id="contact">
+    <h2>Contact</h2>
+    <p>hello@emberandoak.example — 14 Mill Lane, open weekdays 7am to 3pm.</p>
+    <button class="cta">Send a message</button>
+  </section>
+
+  <footer>© 2026 Ember &amp; Oak Roastery.</footer>
+</body>
+</html>

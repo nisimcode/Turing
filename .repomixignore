@@ -1,0 +1,28 @@
+# Secrets and machine-local configuration
+.env
+.env.*
+!.env.example
+.agents/**
+.claude/**
+
+# Dependencies, caches, and generated Python state
+node_modules/**
+**/__pycache__/**
+**/*.py[cod]
+**/.llm-cache/**
+.uv/**
+.venv/**
+
+# Local runtime and generated review artifacts
+gate/telemetry.jsonl
+gate/review-queue.jsonl
+gate/review-queue.html
+gate/q25-handoff/**
+gate/q26-results*.json
+
+# Concluded research evidence is not part of the active implementation context
+archive/**
+
+# Generated Repomix bundles and dependency lock noise
+repomix-output.*
+pnpm-lock.yaml

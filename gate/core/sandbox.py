@@ -35,9 +35,7 @@ import tempfile
 import threading
 from pathlib import Path
 
-from playwright.sync_api import sync_playwright
-
-from .config import EXEC_BUDGET_MS, PAGE_TIMEOUT_MS, SETTLE_MS, get_logger
+from .config import PAGE_TIMEOUT_MS, SETTLE_MS, get_logger
 
 log = get_logger("gate.sandbox")
 
@@ -72,6 +70,10 @@ def sandboxed_page(html_path, extra_files=None):
     visible filesystem for the page. Only requests to that origin are served;
     everything else is aborted.
     """
+    # Keep Playwright out of package import time. Queue/policy/config commands
+    # do not execute artifacts and must work in a minimal Python environment.
+    from playwright.sync_api import sync_playwright
+
     html_path = Path(html_path).resolve()
     tmp = Path(tempfile.mkdtemp(prefix="gate-sbx-"))
     try:
@@ -116,10 +118,3 @@ def sandboxed_page(html_path, extra_files=None):
                     browser.close()
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
-
-
-def evaluate(page, expression, arg=None, budget_ms: int = EXEC_BUDGET_MS):
-    """page.evaluate with a hard timeout so runaway JS can't hang the gate."""
-    page.set_default_timeout(budget_ms)
-    return page.evaluate(expression, arg) if arg is not None \
-        else page.evaluate(expression)

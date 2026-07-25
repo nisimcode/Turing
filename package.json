@@ -1,0 +1,15 @@
+{
+  "name": "turing-verification-gate",
+  "version": "0.0.0",
+  "private": true,
+  "packageManager": "pnpm@11.10.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "repomix": "repomix"
+  },
+  "devDependencies": {
+    "repomix": "1.17.0"
+  }
+}

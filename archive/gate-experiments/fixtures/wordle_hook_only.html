@@ -1,0 +1,44 @@
+<!doctype html><!-- Archived experiment fixture. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Wordle</title>
+<style>
+  body { font-family: sans-serif; background:#121213; color:#fff; text-align:center; }
+  h1 { background:#538d4e; padding:10px; margin:0; letter-spacing:2px; }
+  .tile { display:inline-block; width:44px; height:44px; border:2px solid #3a3a3c;
+          margin:3px; vertical-align:top; }
+  input { padding:6px; margin-top:12px; text-transform:uppercase; }
+  button { padding:6px 12px; }
+</style>
+</head>
+<body>
+  <h1>WORDLE</h1>
+  <div id="board">
+    <div class="tile"></div><div class="tile"></div><div class="tile"></div>
+    <div class="tile"></div><div class="tile"></div>
+  </div>
+  <input id="g" maxlength="5" placeholder="guess">
+  <button id="go">Guess</button>
+  <script>
+    // Hook coloring is CORRECT (passes wordle_logic)...
+    window.__wordle = {
+      _answer: "CRANE",
+      setAnswer(w) { this._answer = w.toUpperCase(); },
+      guess(g) {
+        g = g.toUpperCase();
+        const a = this._answer;
+        const res = Array(5).fill('B');
+        const c = {};
+        for (const ch of a) c[ch] = (c[ch] || 0) + 1;
+        for (let i = 0; i < 5; i++) { if (g[i] === a[i]) { res[i] = 'G'; c[g[i]]--; } }
+        for (let i = 0; i < 5; i++) { if (res[i] === 'B' && c[g[i]] > 0) { res[i] = 'Y'; c[g[i]]--; } }
+        return res.join('');
+      }
+    };
+    // ...but the actual game is broken: the button does nothing. No board update,
+    // no win/lose, not playable. A correct hook masks a non-functional game.
+    document.getElementById('go').onclick = () => { /* intentionally does nothing */ };
+  </script>
+</body>
+</html>

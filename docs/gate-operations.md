@@ -26,12 +26,72 @@ Automation covers the steady state. Humans cover creation and anomalies.
 | Trigger | Why | Action |
 |---|---|---|
 | **A new vertical is created** | The oracle has never been validated for this spec. A wrong oracle is invisible: it looks exactly like wrong code. | Human reviews the generated oracle/reference against the spec once, before the vertical serves traffic. One-time cost per vertical. |
-| **The spec deviates from a common convention** | Cheap tiers revert to their training prior and fail *together*: 53–88% vs 100% for strong tiers (`stress_unanimous.py`). | Flag at authoring time. Require strong-tier oracle + human confirmation of the deviating rule. |
+| **The spec deviates from a common convention** | Cheap tiers revert to their training prior and fail *together*: 53–88% vs 100% for strong tiers (`archive/gate-experiments/stress_unanimous.py`). | Flag at authoring time. Require strong-tier oracle + human confirmation of the deviating rule. |
 | **The strongest tier fails the gate** | There is nowhere left to escalate. The lazy failure mode is to accept anyway "because it's the best we have" — that is the fatal error. | Reject. Route to a human. Never auto-accept a top-tier failure. |
 | **Flag rate leaves its normal band** | Disagreement rate is a live difficulty signal (§3). | Investigate the spec before it silently burns budget. |
 | **Ambiguous-edge disagreement** (Q21) | Broad coverage hits inputs the spec never addressed (e.g. `""` as a card number); the reference's arbitrary choice becomes "truth" and correct code fails. | Do not auto-fail. Surface as *spec clarification needed* — the fix is a better spec, not a different implementation. |
 
 Everything else runs unattended.
+
+### Review queue workflow
+
+`core.policy.assess()` opens a deduplicated pending item in
+`gate/review-queue.jsonl` and returns its stable review ID. The queue is
+append-only: resolving an item adds an audit event rather than rewriting its
+creation record. New-vertical review material is SHA-256-bound to the exact
+scaffold, implementation, control, sharpened specification, and oracle battery.
+
+```bash
+cd gate
+uv run python review_cli.py list
+uv run python review_cli.py show REVIEW_ID
+uv run python review_cli.py resolve REVIEW_ID \
+  --disposition approved --note "Why this is safe to accept"
+uv run python review_cli.py status VERTICAL REVISION
+uv run python review_cli.py export --output review-queue.html
+```
+
+Allowed dispositions are `approved`, `clarified`, and `rejected`. The exported
+HTML is a read-only escaped view; the JSONL queue and HTML export are local
+runtime artifacts and gitignored. Lifecycle projection is fail-closed:
+`approved` is the only production-eligible state. Pending, unreviewed, stale
+revision, clarified/needs-rebuild, rejected, invalid, tampered, or corrupt
+history is blocked. A provisional item or top-tier failure cannot be approved.
+For a new vertical, approval is also refused until all seven automated release
+checks pass, including 100% coverage of at least five execution-validated
+mutants.
+
+Use the release guard when gating a production candidate:
+
+```bash
+uv run --with playwright --with pillow python verify_cli.py \
+  --vertical VERTICAL --revision REVISION --require-approved ARTIFACT.html
+```
+
+### Before asking a human
+
+Run the complete deterministic checkpoint:
+
+```bash
+uv run --with anthropic --with playwright --with pillow \
+  python offline_all_check.py
+```
+
+It makes no model requests. It composes the review and lifecycle state-machine
+tests, Q21 domain regression, Q24 mutation/cache/cost preflight, Q26 task and
+economics controls, correct and known-broken Wordle controls, and the
+four-vector exfiltration control. Human review starts only after it reports
+`OFFLINE PRE-HUMAN CHECKPOINT: PASS`.
+The exact reviewer protocol is in `docs/human-testing.md`.
+
+For Q25, `auto_vertical.py --mutation-score --q25-mode` replaces paid probe
+generation with deterministic schema-derived probes and combines one
+model-proposed mutant with execution-validated local mutations. Only packets
+that pass all seven release checks appear under `review_cli.py list --eligible`.
+`review_cli.py q25-handoff` materializes runnable UIs and immutable JSON
+dossiers; `q25-report` aggregates the human dispositions, timing, and finding
+flags. Blocked and provisional attempts remain in the append-only audit queue
+but cannot contaminate the eligible ten-dossier sample.
 
 ---
 
@@ -43,8 +103,8 @@ unusual:
 
 | Spec type | Observed flag rate | Source |
 |---|---|---|
-| Canonical / conventional | ~3% | `oracle_consensus.py` (1/30) |
-| Prior-fighting / non-standard | ~50% | `stress_consensus.py` (16/32) |
+| Canonical / conventional | ~3% | `archive/gate-experiments/oracle_consensus.py` (1/30) |
+| Prior-fighting / non-standard | ~50% | `archive/gate-experiments/stress_consensus.py` (16/32) |
 
 Use it as an alarm, not just a cost line:
 
@@ -69,6 +129,14 @@ strong tier decides that case.
 finite and ≤100k cases; differential-fuzz otherwise. This removed arbitrary-point
 false accepts entirely (3/15 → 1/15 → 0/15 across battery → fuzz → coverage-aware).
 
+**Enforce the declared domain before executing an oracle case** (Q21). Every
+auto-vertical supplies both a human-readable domain and a machine-readable
+argument schema. Cases outside that schema never become pass/fail evidence:
+withhold them and emit `spec clarification required`. A missing schema is itself
+a clarification trigger. This prevents an arbitrary reference choice for an
+undefined input (such as `""` for a 2–19 digit card number) from falsely
+rejecting correct code.
+
 **Content/UI verticals are floor-only** (Q13b). Objective checks catch crash,
 missing sections, mobile overflow, contrast failures, and collisions (5/5), but
 taste and copy quality pass everything (2/2). Sell those verticals as *guaranteed
@@ -87,3 +155,53 @@ working, accessible, complete* — never as *guaranteed good*.
   silently. The one-time human review of each new vertical exists for this.
 - **Sample sizes are small.** Every figure above is directional evidence, not
   proof. Re-measure as volume grows.
+
+---
+
+## 6. API cost controls
+
+The local exact-response cache (`GATE_LLM_CACHE_DIR`) is the first line of
+defense for research runs: an exact hit makes no API request. Pair it with
+`GATE_LLM_MAX_PAID_CALLS` and, for replays, `GATE_LLM_CACHE_ONLY=1`.
+
+Anthropic prompt caching is different: it still makes a paid request and
+generates new output. `core.llm.call()` therefore supports only explicit,
+opt-in caching of a stable system prefix (`cache_system=True`, TTL `5m` or
+`1h`). Do not enable automatic caching globally or cache a changing per-request
+prompt. `cost_report()` accounts separately for uncached input, 5-minute and
+1-hour cache writes, cache reads, and output; `cache_report()` exposes the token
+totals. A zero-credit fake-client regression covers the request shape and
+billing arithmetic in `offline_q24_check.py`.
+
+### Controlled economics benchmark
+
+`q26_economics.py` compares always-cheap, always-strong, and the cheap-first
+gated cascade from the same paired samples. Seven fixed logic tasks include
+canonical and prior-fighting rules; the visible gate battery and larger local
+holdout are disjoint. The experiment checkpoints responses and records their
+original prices, so counterfactual policy costs remain reproducible from cache.
+
+The first three-trial run produced 21 task-pairs:
+
+| Policy | Correct accepted | Incorrect accepted | Cost | Cost/correct |
+|---|---:|---:|---:|---:|
+| Always cheap | 18/21 | 3 | $0.03230 | $0.00179 |
+| Always strong | 21/21 | 0 | $0.16421 | $0.00782 |
+| Gated cascade | 21/21 | 0 | $0.05636 | $0.00268 |
+
+The gate had 39 true accepts, 3 true rejects, 0 false accepts, and 0 false
+rejects across 42 candidate decisions. All three cheap failures escalated and
+were recovered by the strong tier: 14.3% escalation and 65.7% modeled savings
+versus always-strong. Total research spend to sample both models was $0.19651;
+that is not the cascade's counterfactual serving cost.
+
+Replay the saved result at $0:
+
+```bash
+uv run --with anthropic --with playwright --with pillow \
+  python q26_economics.py --trials 3 --max-paid-calls 42 --cache-only
+```
+
+Treat the result as directional: 21 paired tasks are enough to demonstrate the
+mechanism and catch a repeatable cheap-tier failure, not enough to establish a
+production error-rate bound.

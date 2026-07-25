@@ -1,5 +1,11 @@
 # Turing — a verification gate for generated code
 
+> **AI agents:** Before analyzing, planning, or changing this repository, read
+> [`docs/PROJECT-LOG.md`](docs/PROJECT-LOG.md) in full. It is the source of truth
+> for current status, decisions, completed work, open questions, and the exact
+> resume point. Update it after completing work; do not rely on chat history
+> alone.
+
 **Premise:** the interesting part of routing work between cheap and expensive LLMs
 isn't the router. It's the **gate** — the thing that decides whether generated
 output is good enough. Get the gate right and you can safely default to a cheap
@@ -13,12 +19,12 @@ This repo contains that gate, plus the experiments that produced the claim.
 ## The finding in one table
 
 Measured across ~30 coding tasks and several thousand oracle judgements
-(total API spend for the whole investigation: **~$4**):
+(recorded API spend for the whole investigation: **~$5.2**):
 
 | Question | Answer |
 |---|---|
 | Do you need a frontier model to *write* well-specified code? | **No.** Haiku 4.5 passed ~30 tasks (easy → contest-hard → a self-modifying VM interpreter); Opus cost 4–6× and added nothing. |
-| Does escalation-on-failure pay? | Rarely fires — but behind a gate it made the cascade **81% cheaper than always-Opus at equal verified quality**. |
+| Does escalation-on-failure pay? | **Yes on the controlled Q26 workload:** 21/21 correct, 0 false accepts/rejects, 14.3% escalation, and **65.7% lower modeled cost than always-Opus**. |
 | Where *does* the strong model earn its price? | **Following a spec that contradicts its training prior.** On deliberately non-standard rules: Haiku 53–88%, Sonnet 100%, Opus 100%. |
 | Can the system generate its own tests? | Yes. Auto-generated oracles caught **12/12** bugs from obvious through canonical-edge. |
 | Where do auto-generated gates go blind? | **Arbitrary-point faults** (`n === 1847`). A fixed battery misses them **3/3**; differential fuzzing recovers **2/3**. |
@@ -78,11 +84,82 @@ uv run --with playwright --with pillow python verify_cli.py fixtures/exfiltrate.
 # -> all 4 requests blocked; artifact FAILS on no_outbound_requests
 ```
 
-Generate five Wordles from the cheap model and gate them (costs a few cents):
+Before running the paid auto-vertical mutation experiment, run its zero-credit
+pre-human checkpoint:
 
 ```bash
-uv run --with anthropic --with playwright --with pillow python constrained_gen.py
+cd gate
+uv run --with anthropic --with playwright --with pillow python offline_all_check.py
 ```
+
+The live command checkpoints every successful response, runs only one vertical,
+and refuses to exceed its declared paid-response budget:
+
+```bash
+uv run --with anthropic --with playwright --with pillow python auto_vertical.py \
+    --mutation-score --request-index 0 --max-paid-calls 25
+```
+
+Human-review triggers are written to an append-only local queue. Inspect,
+resolve, or export it without loading Playwright or making an API call:
+
+```bash
+cd gate
+uv run python review_cli.py list
+uv run python review_cli.py list --eligible
+uv run python review_cli.py show REVIEW_ID
+uv run python review_cli.py resolve REVIEW_ID \
+    --disposition clarified --note "Document the decision here"
+uv run python review_cli.py status VERTICAL REVISION
+uv run python review_cli.py export --output review-queue.html
+```
+
+For the first ten-dossier human validation, runnable UIs and immutable packets
+can be materialized locally:
+
+```bash
+uv run python review_cli.py q25-handoff --output q25-handoff
+# review each item, resolve it with --reviewer-seconds, then:
+uv run python review_cli.py q25-report
+```
+
+Approvals are bound to the exact SHA-256 revision of the scaffold, spec,
+implementation, oracle, and control. A changed revision is blocked; clarification
+forces regeneration. New verticals cannot be approved until the baseline,
+buggy-control, oracle, domain, and ≥5-mutant coverage checks all pass.
+
+The exact-response checkpoint cache remains the primary protection for
+interrupted experiments: a hit makes no API call. Anthropic prompt caching is a
+separate, opt-in optimization in `core.llm.call(cache_system=True)`, reserved
+for a large stable system prefix reused across paid requests. Automatic caching
+is deliberately disabled because most gate calls have a changing final prompt.
+Cache reads/writes are included in `cost_report()` using the API usage fields.
+
+Create a shareable AI-context snapshot with the pinned Repomix tool:
+
+```bash
+pnpm install --frozen-lockfile --ignore-scripts
+pnpm repomix
+```
+
+This produces a gitignored `repomix-output.xml`. The tracked `.repomixignore`
+keeps secrets, machine-local settings, dependency/cache state, generated
+review/runtime data, archived research, and lockfile noise out of the bundle.
+Repomix’s sensitive-data scan remains enabled.
+
+Reproduce the Q26 three-arm economics result without another API call:
+
+```bash
+cd gate
+uv run --with anthropic --with playwright --with pillow python q26_economics.py \
+  --trials 3 --max-paid-calls 42 --cache-only
+```
+
+The fixed seven-task matrix uses disjoint visible and hidden case sets. Across
+21 paired task-trials, always-cheap was correct 18/21, always-strong 21/21, and
+the gated cascade 21/21. The gate rejected all three cheap failures, escalated
+them, and produced zero false accepts or false rejects. This is directional
+evidence, not a production-volume confidence claim.
 
 ---
 
@@ -111,17 +188,24 @@ calculator.
 | **`gate/core/`** | **the module: `verify(artifact) -> Verdict`, sandbox, checks, config, llm** |
 | `gate/verify_cli.py` | CLI entry point — `python verify_cli.py --vertical wordle x.html` |
 | `gate/auto_vertical.py` | build a whole vertical (scaffold + oracle + gate) from a plain request |
-| `gate/browser_gate.py` | earlier standalone runner (superseded by `core/`) |
+| `gate/offline_q24_check.py` | zero-credit preflight for auto-battery mutation scoring |
+| `gate/offline_q25_check.py` | zero-credit Q25 eligibility, probe, and mutation regression |
+| `gate/q26_economics.py` | checkpointed paired always-cheap / always-strong / cascade benchmark |
+| `gate/offline_q26_check.py` | zero-credit controls for Q26 tasks, holdouts, and economics |
+| `gate/offline_q21_check.py` | zero-credit regression for domain ambiguity and false rejects |
+| `gate/offline_all_check.py` | complete zero-credit checkpoint before human review |
+| `gate/review_cli.py` | inspect, resolve, and export the append-only human-review queue |
+| `gate/offline_review_check.py` | zero-credit end-to-end review workflow regression |
 | `gate/*_spec.py` | per-vertical oracle + functional checks |
 | `gate/scaffold/`, `gate/fixtures/` | scaffolds we own; correct/broken test fixtures |
-| `gate/constrained_gen*.py` | generate a logic slot → inject → gate |
-| `gate/run_cascade_calc.py` | the cheap→strong cascade, measured |
-| `gate/auto_gate.py`, `oracle_consensus.py`, `stress_*.py` | can the system write and verify its own oracles? |
-| `gate/subtlety_ladder.py`, `fuzz_gate.py`, `coverage_gate.py` | how subtle can a bug get before the gate misses it? |
-| `gate/content_spec.py`, `run_content_gate.py` | the objective boundary for content/UI pages |
 | `docs/gate-operations.md` | human review, monitoring, failure handling |
+| `docs/human-testing.md` | exact preconditions and protocol for first human validation |
 | `docs/PROJECT-LOG.md` | full decision/milestone/question log |
-| `archive/` | concluded exploration + dead ends, with notes |
+| `.repomixignore` | exclusions for safe, active-code-only Repomix snapshots |
+| `package.json`, `pnpm-lock.yaml` | pinned local Repomix development tool |
+| `archive/gate-experiments/` | concluded gate experiments and predecessor runners |
+| `archive/eval/`, `archive/gate-deadends/` | initial exploration and failed approaches |
+| `archive/plans/` | completed and superseded planning documents |
 
 ---
 

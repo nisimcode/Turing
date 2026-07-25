@@ -2,27 +2,51 @@
 .env
 .env.*
 !.env.example
+*.pem
+*.key
 
-# ---- Python ----
+# ---- Python bytecode, environments, builds, and test caches ----
 __pycache__/
 *.py[cod]
+*$py.class
 *.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+build/
+dist/
 .venv/
 venv/
 .uv/
 
+# ---- Node / pnpm ----
+node_modules/
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ---- Workspace and tool caches ----
+.cache/
+.uv-cache/
+.agents/
+.claude/
+
 # ---- Generated model output (regenerable by re-running the scripts) ----
 gate/corpus/
 eval/artifacts/
+.llm-cache/
+gate/q26-results*.json
 
 # ---- Browser automation / test output ----
 test-results/
 playwright-report/
 *.webm
-*.zip
-
-# ---- Local tooling ----
-.claude/settings.local.json
+trace.zip
 
 # ---- OS / editors ----
 .DS_Store
@@ -32,6 +56,15 @@ desktop.ini
 .vscode/
 *.swp
 *~
+*.tmp
+*.temp
+*.log
 
 # ---- Runtime telemetry (local, regenerated) ----
 gate/telemetry.jsonl
+gate/review-queue.jsonl
+gate/review-queue.html
+gate/q25-handoff/
+
+# ---- Generated repository bundles ----
+repomix-output.*
