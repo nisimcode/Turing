@@ -12,7 +12,7 @@ with date AND time** (`YYYY-MM-DD HH:MM TZ`). Keep it terse. (Entries before
 
 ---
 
-## Current status (2026-07-26 00:20 JDT)
+## Current status (2026-07-26 00:25 JDT)
 
 A point-in-time snapshot — replaced wholesale on each update. The chronological
 record lives in *Milestones*; do not append history here.
@@ -46,6 +46,7 @@ installed wheel.
 | A clean user can generate rather than hand-write the manifest shell | v0.1.2 candidate run `30175194327`: built-wheel `init` created a functional manifest and its immediate verification passed on Ubuntu and Windows; full jobs passed in 2m37s/2m55s |
 | The new tagged CLI is publicly fetchable | refreshed HTTPS `uvx` resolved `v0.1.1` to commit `1b06f3f`; `doctor --json` passed all 8 setup checks |
 | The final onboarding release is publicly fetchable | exact `v0.1.2` tag run `30175328116` passed Ubuntu in 2m30s and Windows in 2m55s; GitHub release includes wheel + sdist; refreshed HTTPS `uvx` resolved commit `b5f94e3` and reported version `0.1.2` |
+| A new user has one complete reference | `docs/user-manual.md` covers installation, first run, hooks, safe `init`, every manifest field/check, case design, JSON/exit semantics, CI, troubleshooting, privacy and limits; commands were checked against v0.1.2 help |
 | The public manifest path is stable across varied logic tools | paired `logic-tools-v1`: 6 domains / 12 subjects, 12/12 decisions, 0 false accepts/rejects, 6/6 diagnostics locally and in hosted run `30173955145`; local median/p95 1.453s/1.484s, Ubuntu 1.491s/2.069s, Windows 1.569s/1.908s |
 | The paired cases resist separately generated faults | six-domain mechanical challenge: initial 22/27 killed (81%); five survivors exposed missing email-anchor and bottom-row cases; distinct scored values raised the result to 27/27 (100%) while 22 validation probes remain exact-disjoint; hosted run `30174711088` reproduced 27/27 on Ubuntu and Windows |
 | The gate catches faults nobody here thought of | mutation score **100%**, 15/15 execution-validated mutants killed |
@@ -94,6 +95,7 @@ delay that test.
 
 | # | Date/time | Decision |
 |---|------|----------|
+| D61 | 2026-07-26 00:25 JDT | **Give users one task-oriented manual separate from the research and operator record.** `docs/user-manual.md` is the public v0.1.2 reference: setup, demonstration, own-artifact workflow, safe `init`, full manifest/schema fields, effective boundary cases, check/exit interpretation, CI, troubleshooting, privacy, browser containment and explicit non-guarantees. Keep `gate-operations.md` focused on operator policy and `PROJECT-LOG.md` focused on evidence/decisions. Link the manual prominently from README. |
 | D60 | 2026-07-26 00:13 JDT | **Finish pre-adoption engineering by removing manifest boilerplate without guessing correctness.** `turing-gate init` creates a version-1 manifest beside an existing confined HTML artifact. Functional mode requires an explicit hook and JSON cases; otherwise the result is prominently runtime-only. Validate through the production loader before atomic publication, refuse overwrite unless `--force`, and leave no partial file on invalid JSON/schema/path. The public regression covers runtime-only and functional success plus overwrite, malformed-constant and path-escape failures. The independently validated mutation benchmark now also self-tests missing markers, missing probe domains and probe/scored-case contamination before browser execution. Ship this bounded onboarding/harness improvement as v0.1.2, then stop substituting internal work for adoption evidence. |
 | D59 | 2026-07-25 23:59 JDT | **A zero-API path must not import optional model dependencies.** The first hosted mechanical-benchmark run (`30174575349`) passed wheel setup and the paired benchmark on both OSes, then failed before mutation execution because `core.mutation` eagerly imported `core.llm` and therefore `anthropic`. Move that import inside `validated_mutants()`, the only paid generation path. A forced-SDK-unavailable import, Q24, and the 27/27 mechanical challenge pass locally; corrected hosted run `30174711088` then reproduced 27/27 on both OSes. |
 | D58 | 2026-07-25 23:55 JDT | **Challenge hand-authored cases with separately generated, execution-validated faults.** Each correct benchmark implementation has a marked mutation surface. Generic one-site mutations count only if they produce a wrong result on versioned domain-valid probes whose exact inputs are absent from the scored manifests; survivors are reported, never silently discarded. The first run killed 22/27 (81%): unanchored email regexes and damaged bottom-row indices survived. Adding different email-whitespace and bottom-row values to the scored cases raised the bounded result to 27/27 (100%). Require that score in the unified checkpoint and Windows/Linux CI, while stating plainly that six toy domains and a fixed mutation operator set do not estimate unknown-fault or production reliability. |
@@ -159,6 +161,11 @@ delay that test.
 
 ## Milestones completed
 
+- **2026-07-26 00:25 JDT** — **Public user manual completed.** Added one
+  task-oriented v0.1.2 guide covering installation through CI and
+  troubleshooting, with the manifest/schema/check reference and honest scope
+  boundaries. Verified command names/options against the shipped CLI and linked
+  it from README and the operator document. → D61.
 - **2026-07-26 00:20 JDT** — **v0.1.2 published; pre-adoption engineering
   wrapped.** Exact tag `b5f94e3` passed the complete clean-room matrix in run
   `30175328116`: Ubuntu 2m30s, Windows 2m55s, including built-wheel manifest
@@ -769,6 +776,9 @@ instructions, and interpretation limits.
 `.env.example`, `.repomixignore`, `pyproject.toml`, `uv.lock`, `package.json`,
 and `pnpm-lock.yaml`.
 `.env` holds `CLAUDE_API_KEY` and is gitignored — never commit it.
+
+**`docs/user-manual.md`** — public v0.1.2 installation, artifact/manifest,
+case-design, results, CI, troubleshooting, privacy, and limits guide.
 
 **Public path:** `uv run turing-gate install-browser`, confirm with
 `uv run turing-gate doctor`, then

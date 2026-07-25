@@ -17,6 +17,11 @@ The dependable verifier requires no model, API key, account, or hosted service.
 Experimental model-assisted oracle and auto-vertical research remains in this
 repository, but it is not part of the installed public CLI.
 
+New users should start with the
+**[Turing Gate user manual](docs/user-manual.md)**. It covers installation,
+manifest creation, case design, result interpretation, CI, troubleshooting,
+privacy, and the verifier’s limits.
+
 ## Try it in under five minutes
 
 Requirements: Python 3.12+ and
@@ -283,6 +288,7 @@ The 30-day validation target is:
 | `gate/offline_manifest_check.py` | Zero-credit public-path regression |
 | `gate/offline_benchmark_mutation_check.py` | Independent mechanical-fault challenge |
 | `gate/offline_all_check.py` | Unified zero-credit regression checkpoint |
+| `docs/user-manual.md` | Complete installation and usage guide |
 | `gate/auto_vertical.py` | Experimental model-assisted vertical generation |
 | `docs/PROJECT-LOG.md` | Decisions, evidence, current status, and resume point |
 | `docs/gate-operations.md` | Operational safeguards and failure handling |

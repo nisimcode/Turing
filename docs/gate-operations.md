@@ -6,6 +6,10 @@ cited so the rule can be re-derived (or overturned) when the evidence changes.
 The gate is trustworthy in aggregate but has three known blind spots. This
 document says who watches them and when.
 
+End-user installation, manifest, case-design, troubleshooting, and command
+instructions are in [`user-manual.md`](user-manual.md). This document covers
+operator policy and failure handling.
+
 ---
 
 ## 1. The one rule that governs everything
