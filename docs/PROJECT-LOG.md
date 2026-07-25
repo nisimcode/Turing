@@ -12,7 +12,7 @@ with date AND time** (`YYYY-MM-DD HH:MM TZ`). Keep it terse. (Entries before
 
 ---
 
-## Current status (2026-07-26 00:13 JDT)
+## Current status (2026-07-26 00:17 JDT)
 
 A point-in-time snapshot — replaced wholesale on each update. The chronological
 record lives in *Milestones*; do not append history here.
@@ -42,6 +42,7 @@ are excluded from the installed wheel.
 | The locked public/runtime Python dependency set is clean | experimental `uv audit`: 20 packages checked, no known vulnerabilities or adverse project statuses |
 | Setup failures are locally diagnosable | `turing-gate doctor`: 8/8 healthy-environment checks PASS; forced missing-browser path returns not-ready with exact repair command |
 | The wheel works in clean hosted environments | first main run `30173582765`: Ubuntu PASS in 36s, Windows PASS in 53s; exact `v0.1.1` tag run `30173641636`: Ubuntu PASS in 38s, Windows PASS in 54s; install → doctor → 3 demos → user example, no retries |
+| A clean user can generate rather than hand-write the manifest shell | v0.1.2 candidate run `30175194327`: built-wheel `init` created a functional manifest and its immediate verification passed on Ubuntu and Windows; full jobs passed in 2m37s/2m55s |
 | The new tagged CLI is publicly fetchable | refreshed HTTPS `uvx` resolved `v0.1.1` to commit `1b06f3f`; `doctor --json` passed all 8 setup checks |
 | The public manifest path is stable across varied logic tools | paired `logic-tools-v1`: 6 domains / 12 subjects, 12/12 decisions, 0 false accepts/rejects, 6/6 diagnostics locally and in hosted run `30173955145`; local median/p95 1.453s/1.484s, Ubuntu 1.491s/2.069s, Windows 1.569s/1.908s |
 | The paired cases resist separately generated faults | six-domain mechanical challenge: initial 22/27 killed (81%); five survivors exposed missing email-anchor and bottom-row cases; distinct scored values raised the result to 27/27 (100%) while 22 validation probes remain exact-disjoint; hosted run `30174711088` reproduced 27/27 on Ubuntu and Windows |
@@ -81,9 +82,9 @@ failure** — three today (floor `has_dom`, fence-matching regex, mutation hook)
 each briefly masqueraded as a real finding. Verify surprising results before
 believing them.
 
-**Next action.** Push the v0.1.2 onboarding candidate through clean Windows and
-Linux, publish the tagged release if both pass, then begin the genuine outside
-20/5/3 adoption test. No further internal benchmark should delay that test.
+**Next action.** Tag and publish the now-hosted-green v0.1.2 artifacts, verify
+the public tag, then begin the genuine outside 20/5/3 adoption test. No further
+internal benchmark should delay that test.
 
 ---
 
@@ -165,7 +166,10 @@ Linux, publish the tagged release if both pass, then begin the genuine outside
   paired 12/12, diagnostics 6/6, mechanical 27/27, and all Q21-Q26 controls.
   Built the wheel/sdist, found no known vulnerabilities in 20 dependencies,
   then used an isolated wheel to generate and successfully verify a functional
-  shipping manifest. Hosted reproduction and release publication remain. → D60.
+  shipping manifest. Hosted run `30175194327` then passed the exact built-wheel
+  flow on both systems, including manifest generation and immediate functional
+  verification: Ubuntu 2m37s, Windows 2m55s. Release publication remains.
+  → D60.
 - **2026-07-26 00:03 JDT** — **Independent-fault challenge reproduced in
   clean hosted environments.** Corrected run `30174711088` passed every step:
   Ubuntu in 2m36s and Windows in 2m50s. Both used 22 exact-disjoint probes and
