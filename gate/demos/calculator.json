@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "name": "calculator-negative-division",
+  "description": "A calculator floors negative division instead of truncating toward zero.",
+  "artifact": "calculator-broken.html",
+  "hook": "window.__turing.evaluate",
+  "domain_schema": {
+    "args": [
+      {"type": "string", "enum": ["10/3", "-7/2", "7/-2", "-10/3"]}
+    ]
+  },
+  "cases": [
+    {"label": "positive division", "args": ["10/3"], "expected": 3},
+    {"label": "negative numerator", "args": ["-7/2"], "expected": -3},
+    {"label": "negative denominator", "args": ["7/-2"], "expected": -3},
+    {"label": "negative fraction", "args": ["-10/3"], "expected": -3}
+  ]
+}

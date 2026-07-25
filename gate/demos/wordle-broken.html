@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Wordle duplicate-letter demo</title>
+  <style>
+    body { font: 16px system-ui; max-width: 42rem; margin: 3rem auto; }
+    input, button { padding: .6rem; }
+    #result { margin-top: 1rem; font-size: 1.4rem; }
+  </style>
+</head>
+<body>
+  <h1>Wordle feedback</h1>
+  <p>This implementation looks reasonable, but repeated letters expose a bug.</p>
+  <input id="guess" value="PPPPP" maxlength="5">
+  <input id="answer" value="APPLE" maxlength="5">
+  <button id="check">Check</button>
+  <div id="result">ready</div>
+  <script>
+    function feedback(guess, answer) {
+      guess = guess.toUpperCase();
+      answer = answer.toUpperCase();
+      let result = "";
+      for (let index = 0; index < 5; index++) {
+        if (guess[index] === answer[index]) result += "G";
+        else if (answer.includes(guess[index])) result += "Y"; // BUG: ignores counts
+        else result += "B";
+      }
+      return result;
+    }
+    window.__turing = { wordle: feedback };
+    document.getElementById("check").onclick = () => {
+      document.getElementById("result").textContent = feedback(
+        document.getElementById("guess").value,
+        document.getElementById("answer").value
+      );
+    };
+  </script>
+</body>
+</html>

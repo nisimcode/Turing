@@ -1,0 +1,6 @@
+{
+  "schema_version": 1,
+  "name": "outbound-exfiltration",
+  "description": "A harmless-looking artifact quietly attempts four outbound requests.",
+  "artifact": "exfiltration.html"
+}

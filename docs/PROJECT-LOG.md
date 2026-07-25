@@ -12,36 +12,33 @@ with date AND time** (`YYYY-MM-DD HH:MM TZ`). Keep it terse. (Entries before
 
 ---
 
-## Current status (2026-07-25 22:39 JDT)
+## Current status (2026-07-25 23:11 JDT)
 
 A point-in-time snapshot — replaced wholesale on each update. The chronological
 record lives in *Milestones*; do not append history here.
 
-**What the project is.** A verification **gate** for LLM-generated code, plus a
-thin cheap-first cascade on top. The founding question was whether a strong model
-should route work to cheaper ones; the measured answer is that the merit sits in
-the **verifier, not the router** — a trustworthy gate is what makes defaulting to
-a cheap model safe. Q26 now measures that exact cascade at **65.7% below
-always-Opus cost with equal 21/21 correctness** on a fixed varied workload.
+**What the project is.** An adoption-first, free local **verification gate** for
+AI-generated, self-contained HTML/JavaScript tools. The dependable product is a
+deterministic manifest + isolated browser verifier, not a model router: it
+requires no API key or hosted service. The earlier cascade, oracle, and
+auto-vertical work remains measured research, not the public product surface.
 
-**Where the code is.** Repo `nisimcode/Turing` (private, branch `main`,
-proprietary © Nisim Levi). Current `main` contains the Q21/Q24/Q26 hardening,
-zero-credit preflights, cost controls, and the minimal append-only human-review
-queue/UI. `gate/core/` is the module —
-`verify(artifact, functional=...) -> Verdict`, with sandbox, oracle, mutation,
-domain, telemetry, policy, and review workflow alongside. Entry points:
-`gate/verify_cli.py`, `gate/review_cli.py`, `gate/auto_vertical.py`, and the
-paired economics runner `gate/q26_economics.py`.
-The active `gate/` tree has been cleaned to current code, vertical assets, and
-offline regressions; concluded standalone experiments live in
-`archive/gate-experiments/`. Active `docs/` now contains only the project log,
-operations guide, and pending human-test protocol; concluded plans live under
-`archive/plans/`.
+**Where the code is.** Repo `nisimcode/Turing` (currently private, branch
+`main`), now licensed Apache 2.0. `gate/cli.py` exposes the packaged
+`turing-gate` command; `gate/core/manifest.py` binds a local artifact, browser
+hook, domain schema, and exact cases; `gate/core/verify.py` and `sandbox.py`
+provide the fail-closed runtime. The wheel includes only the CLI, core, and
+three bundled demonstrations. Model-assisted auto-vertical generation, review
+research, Q21-Q26 runners, and historical evidence stay in the source tree but
+are excluded from the installed wheel.
 
 **What is proven (with numbers).**
 
 | Claim | Evidence |
 |---|---|
+| An outside artifact can use the gate without Python changes or an API key | versioned JSON manifest: correct control PASS; directory escape and malformed domain schema rejected; bundled Wordle/calculator/exfiltration defects caught 3/3 |
+| The public tool is independently installable | `uv build --no-sources` produced sdist + wheel; isolated `uvx --from <wheel> turing-gate demo` passed 3/3 |
+| The locked public/runtime Python dependency set is clean | experimental `uv audit`: 20 packages checked, no known vulnerabilities or adverse project statuses |
 | The gate catches faults nobody here thought of | mutation score **100%**, 15/15 execution-validated mutants killed |
 | Auto-generated batteries have measured fault coverage | Caesar auto-battery mutation score **100%**, 5/5 execution-validated mutants killed over 498 independent probes |
 | Undefined inputs do not become false rejects | Q21 regression withheld 2/2 out-of-domain Luhn cases; correct implementation PASS, 0 false rejects |
@@ -57,14 +54,14 @@ checkable pure function (games, calculators, validators). Content/UI is
 **floor-only**: objective checks caught 5/5 structural defects but 2/2 subjective
 ones passed. Sell those as *working, accessible, complete* — never as *good*.
 
-**Readiness ≈ 86%.** Research, controlled economics, deterministic pre-human
-engineering, and the ten-candidate Q25 handoff are done. The remaining Q25 work
-is deliberately human: review and resolve those exact ten dossiers.
-The local release path is fail-closed: review evidence is revision-bound,
-objective failures cannot be human-overridden, and only an exact approved
-revision is production-eligible. Not yet proven: human review on a current
-candidate set, real customer traffic, a scaffold library at scale, multi-user
-service/storage, or anything beyond single-file HTML/JS.
+**Adoption-release engineering ≈ 92%; adoption evidence = 0/20 developers,
+0/5 user-owned artifacts, 0/3 repeat users.** Apache licensing, local package,
+no-API manifest, three demonstrations, isolated-wheel smoke test, and unified
+zero-credit regression are complete. Still required for v0.1 distribution:
+make the repository public, publish/tag a release, verify cold onboarding on a
+second machine, and recruit/observe outside users. Q25’s prepared human sample
+now applies only to the experimental auto-vertical path and does not block the
+deterministic public verifier.
 
 **Standing caveats.** Sample sizes are small throughout (directional, not proof).
 The gate is a correctness check, **not a security boundary** — an arbitrary
@@ -76,11 +73,10 @@ failure** — three today (floor `has_dom`, fence-matching regex, mutation hook)
 each briefly masqueraded as a real finding. Verify surprising results before
 believing them.
 
-**Next action.** A human reviews the ten packets in
-`gate/q25-handoff/INDEX.md`, records each decision with reviewer time and any
-finding flags, then runs `review_cli.py q25-report`. Do not treat Q25 as answered
-until all ten exact revisions are resolved. Q26 is answered directionally; do
-not turn its 21-pair result into a production-volume error-rate claim.
+**Next action.** Publish v0.1: change GitHub visibility to public, tag the
+validated wheel state, test the README flow from a clean machine/account, then
+begin the 30-day 20/5/3 adoption test. Do not add more gate research until real
+usage identifies a concrete failure or onboarding obstacle.
 
 ---
 
@@ -88,6 +84,7 @@ not turn its 21-pair result into a production-volume error-rate claim.
 
 | # | Date/time | Decision |
 |---|------|----------|
+| D55 | 2026-07-25 23:05 JDT | **Pivot from proprietary research prototype to an Apache-2.0, adoption-first local developer tool.** The dependable product surface is `turing-gate verify turing.json`: a versioned deterministic manifest, directory-confined self-contained HTML artifact, dotted browser hook, optional domain schema, and exact cases. It needs no model/API key; writes only local `.turing/telemetry.jsonl`; and returns distinct pass/reject/setup exit codes. The wheel excludes auto-vertical and experiment runners. Three bundled known-bad demos catch Wordle duplicates, negative division, and four-vector exfiltration. Success is now 20 outside verifications / 5 own artifacts / 3 repeat users in 30 days, not more internal research. Supersedes D29’s proprietary licence and makes Q25 non-blocking for the public path. |
 | D54 | 2026-07-25 22:39 JDT | **Ignore rules must protect machine state without hiding legitimate project artifacts.** Reorganized `.gitignore` into secrets, Python, Node, workspace/tool caches, generated model/runtime output, browser artifacts, editor/OS state, and Repomix bundles. Added local agent directories, Python analysis/coverage/build caches, package-manager logs, and generic workspace caches; generalized `.llm-cache/` to every location. Replaced broad `*.zip` with Playwright-specific `trace.zip` so a legitimate archive remains trackable. Verified all generated paths are ignored while `.env.example`, `.repomixignore`, `package.json`, and `pnpm-lock.yaml` remain trackable. |
 | D53 | 2026-07-25 22:37 JDT | **Repository snapshots use a pinned, local Repomix with explicit secret/context exclusions.** Added private Node tooling with Repomix 1.17.0 pinned in `package.json`/`pnpm-lock.yaml`; `.repomixignore` excludes `.env`, machine-local state, dependencies/caches, generated review/runtime/Q26 data, the concluded archive, bundles, and lockfile noise while retaining `.env.example` and active source. Default sensitive-data scanning stays on. A real pack included 45 intended files and excluded every protected class. `pnpm audit` reports 0 high/critical and one moderate transitive Windows `serve-static` advisory in `@hono/node-server` via the optional MCP SDK; no compatible 1.x patch exists and the pack-only workflow does not start that server. |
 | D52 | 2026-07-25 22:35 JDT | **Keep only operational documents and reachable symbols on the active path.** Moved the completed implementation plan and two superseded strategy documents to `archive/plans/`; removed three unreferenced constants, five regenerated bytecode directories, and one stale HTML queue export. Preserved response caches, Q25 dossiers/queue, Q26 checkpoint, telemetry, and all empirical evidence because they still support free replay, pending review, or audit. Static import/symbol/reference checks and the full zero-credit checkpoint pass. |
@@ -113,7 +110,7 @@ not turn its 21-pair result into a production-volume error-rate claim.
 | D32 | 2026-07-25 19:24 JDT | **Consolidated into a `gate.core` package** with one entry point `verify(artifact, functional=...) -> Verdict`, shared config/tiers/pricing, cost accounting and logging — replacing ~12 scripts that each carried their own key loader and browser setup. Verification deliberately does **not** import the Anthropic SDK (lazy), so gating runs in a minimal environment. |
 | D31 | 2026-07-25 18:57 JDT | **Gate operations spec written** (`docs/gate-operations.md`) — answers Q18. Humans review at *creation* (each new vertical's oracle) and on *anomaly* (deviating spec, top-tier failure, flag-rate excursion, ambiguous edge); everything else runs unattended. Flag rate doubles as a live spec-difficulty alarm — and near-zero on a NEW vertical is suspicious (may mean the ensemble lacks tier diversity), not reassuring. |
 | D30 | 2026-07-25 18:57 JDT | **Content/UI verticals are FLOOR-ONLY.** Objective checks guarantee *working, accessible, complete*; they cannot judge *good*. Sell those verticals on the floor, not on quality — and lead commercially with logic-verifiable verticals where the oracle decides correctness outright. |
-| D29 | 2026-07-25 18:53 JDT | **Licence: proprietary / all rights reserved** (`LICENSE`), source-available for evaluation only. Deliberately the restrictive starting point — it can be loosened later, whereas permissions once granted cannot be withdrawn from copies already taken. Copyright-holder name still to be filled in. |
+| D29 | 2026-07-25 18:53 JDT | **SUPERSEDED by D55.** Initial licence was proprietary / all rights reserved. |
 | D28 | 2026-07-25 18:53 JDT | **Coverage-aware gating is the production design** (`gate/coverage_gate.py`): the strong tier declares the input domain; enumerate exhaustively when finite and ≤100k cases, otherwise differential-fuzz. Removes arbitrary-point false accepts entirely (0/15). Accept the resulting rise in spec-ambiguity false rejects — trading fatal errors for margin cost. |
 | D27 | 2026-07-25 18:41 JDT | **Gate strategy by domain size: enumerate exhaustively when the input domain is small and finite (e.g. int 1..3999); random differential fuzzing otherwise.** Fuzz coverage is only as good as the generator's distribution — the one L5 miss was an unreachable-in-practice value under a skewed generator, which exhaustive enumeration removes entirely. |
 | D26 | 2026-07-25 18:35 JDT | **The gate is a correctness check, NOT a security boundary.** An arbitrary trigger (magic value / rare substring) reliably evades a finite battery, so the gate cannot be relied on to stop deliberately hidden behaviour. Fine for verifying honest generation; do not market it as a safety guarantee against malicious code. |
@@ -147,6 +144,19 @@ not turn its 21-pair result into a production-volume error-rate claim.
 
 ## Milestones completed
 
+- **2026-07-25 23:11 JDT** — **Adoption-first v0.1 package completed.**
+  Replaced the proprietary licence with exact Apache 2.0 terms + NOTICE. Added
+  `pyproject.toml`, reproducible `uv.lock`, `turing-gate` entry point, strict
+  version-1 JSON manifest, deep/tolerant result comparison, domain enforcement,
+  directory confinement, local-only CLI telemetry, setup/reject/pass exit
+  codes, and browser installation command. Bundled known-bad Wordle,
+  calculator, and exfiltration demos; all 3 are caught. Added a passing
+  shipping example/user-manifest control, escape-path rejection, and strict
+  malformed-domain-schema rejection. The wheel contains only core, CLI, and
+  demos; research runners are absent.
+  `uv build --no-sources`, isolated-wheel `uvx` demo, full unified regression
+  pass at $0, and Python dependency audit pass (20 packages; no known
+  vulnerabilities or adverse statuses). → D55.
 - **2026-07-25 22:39 JDT** — **Git ignore policy hardened.** Added the
   repository’s actual Python, Node, agent/tool, build, coverage, cache, browser,
   runtime, and Repomix outputs; generalized the response-cache rule; and removed
@@ -541,7 +551,7 @@ not turn its 21-pair result into a production-volume error-rate claim.
 | # | Question | When needed | Status |
 |---|----------|-------------|--------|
 | Q26 | On a fixed varied workload with independent ground truth, does the current gated cascade reduce cost versus always-strong while preserving correct decisions? | Before making the current savings claim commercially | ANSWERED DIRECTIONALLY (2026-07-25 21:51 JDT): yes on 7 tasks × 3 paired trials. Always-cheap 18/21 correct at $0.03230; always-Opus 21/21 at $0.16421; cascade 21/21 at $0.05636 (65.7% savings). Gate: 39 true accepts, 3 true rejects, 0 false accepts/rejects; escalation 3/21. n=21 is not a production reliability bound. |
-| Q25 | Does the revision-bound human workflow catch any spec/oracle/UI issue that passed all deterministic checks, and what are approval/clarification/rejection rates? | Before unattended auto-vertical use | IN PROGRESS (2026-07-25 22:30 JDT): 10 exact-revision eligible dossiers are prepared; all seven automated prerequisites passed and 50/50 execution-validated mutants were killed. Human decisions and timing remain. Start at `gate/q25-handoff/INDEX.md`, record structured findings, then run `review_cli.py q25-report`. |
+| Q25 | Does the revision-bound human workflow catch any spec/oracle/UI issue that passed all deterministic checks, and what are approval/clarification/rejection rates? | Before unattended auto-vertical use | PARKED/NON-BLOCKING (2026-07-25 23:05 JDT): 10 exact-revision eligible dossiers remain prepared, but the adoption v0.1 excludes auto-vertical generation and consumes user-authored deterministic cases. Resume Q25 only before exposing unattended auto-verticals. |
 | Q1 | Which exact first vertical (specific app type + example requests)? | Now (Phase 0) | ANSWERED (2026-07-25): single-file browser games. |
 | Q2 | Can the gate reach false-accept ≈ 0 with tolerable false-reject on that vertical? | Phase 2 — **kill check** | LARGELY ANSWERED (2026-07-25 18:35 JDT): yes for the realistic bug distribution — false-accepts 0/12 on obvious→canonical-edge bugs, false-rejects 0/3. Residual false-accepts only for arbitrary-point faults (3/3) → D25/Q19. |
 | Q3 | What false-reject rate / cost budget is acceptable (the tuning target)? | Before Phase 2 tuning | OPEN |
@@ -595,7 +605,7 @@ not turn its 21-pair result into a production-volume error-rate claim.
 
 ## Artifact / file index
 
-*(layout as of 2026-07-25 22:39 JDT)*
+*(layout as of 2026-07-25 23:05 JDT)*
 
 **`docs/`**
 - `PROJECT-LOG.md` — this file; the single record.
@@ -606,6 +616,8 @@ not turn its 21-pair result into a production-volume error-rate claim.
   release proof, and first 10-candidate validation protocol.
 
 **`gate/core/`** — *the module.* Start here.
+- `manifest.py` — versioned user manifest, path/domain validation, hook
+  execution, and deep expected-value comparison.
 - `verify.py` — the entry point: `verify(artifact, functional=...) -> Verdict`.
 - `sandbox.py` — isolated execution (ephemeral loopback origin, all outbound
   requests blocked, fresh context, timeouts).
@@ -627,6 +639,8 @@ not turn its 21-pair result into a production-volume error-rate claim.
   cache-only mode, replayable original response prices, fenced-block extraction.
 
 **`gate/`** — current verticals, CLIs, and regressions only.
+- `cli.py` — packaged no-API `turing-gate` verify/demo/install-browser command.
+- `demos/` — bundled Wordle, calculator, and exfiltration demonstrations.
 - Per vertical: a scaffold in `scaffold/` + a `*_spec.py` (`wordle`, `game2048`,
   `billsplit`, `calc`).
 - `verify_cli.py` — gate artifacts; optional exact-revision release guard.
@@ -639,7 +653,8 @@ not turn its 21-pair result into a production-volume error-rate claim.
 - `offline_all_check.py` — unified zero-credit pre-human checkpoint; the
   narrower `offline_q21_check.py`, `offline_q24_check.py`,
   `offline_q25_check.py`, `offline_q26_check.py`,
-  `offline_review_check.py`, and `offline_lifecycle_check.py` compose into it.
+  `offline_manifest_check.py`, `offline_review_check.py`, and
+  `offline_lifecycle_check.py` compose into it.
 - `q25-handoff/` — generated eligible-only reviewer UIs and immutable dossiers;
   local runtime output, gitignored.
 - `fixtures/` — correct/broken Wordles and the four-vector exfiltration probe.
@@ -651,14 +666,14 @@ not turn its 21-pair result into a production-volume error-rate claim.
 research/predecessors), `archive/gate-deadends/` (failed approaches), and
 `archive/plans/` (completed/superseded planning documents).
 
-**Root** — `README.md`, `LICENSE` (proprietary), `.gitignore`, `.env.example`,
-`.repomixignore`, `package.json`, and `pnpm-lock.yaml`.
+**Root** — `README.md`, Apache-2.0 `LICENSE` + `NOTICE`, `.gitignore`,
+`.env.example`, `.repomixignore`, `pyproject.toml`, `uv.lock`, `package.json`,
+and `pnpm-lock.yaml`.
 `.env` holds `CLAUDE_API_KEY` and is gitignored — never commit it.
 
-**How to run Python:** `uv` only (not bare `python`; the Windows Store alias
-breaks it). Example:
-`cd gate && uv run --with anthropic --with playwright --with pillow python offline_all_check.py`
-One-time: `uv run --with playwright python -m playwright install chromium`.
+**Public path:** `uv run turing-gate install-browser`, then
+`uv run turing-gate demo` or `uv run turing-gate verify turing.json`.
+**Full research regression:** `uv run --extra ai python gate/offline_all_check.py`.
 Repository snapshots use `pnpm install --frozen-lockfile --ignore-scripts`
 followed by `pnpm repomix`; the generated XML is gitignored.
 

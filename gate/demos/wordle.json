@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "name": "wordle-duplicate-letters",
+  "description": "A plausible Wordle implementation mishandles repeated letters.",
+  "artifact": "wordle-broken.html",
+  "hook": "window.__turing.wordle",
+  "domain_schema": {
+    "args": [
+      {"type": "string", "pattern": "^[A-Z]{5}$"},
+      {"type": "string", "pattern": "^[A-Z]{5}$"}
+    ]
+  },
+  "cases": [
+    {"label": "too many Ps", "args": ["PPPPP", "APPLE"], "expected": "BGGBB"},
+    {"label": "repeated E", "args": ["SPEED", "ERASE"], "expected": "YBYYB"},
+    {"label": "mixed duplicate", "args": ["ALLOY", "LOLLY"], "expected": "BYGYG"},
+    {"label": "duplicate B", "args": ["ABBEY", "KEBAB"], "expected": "YBGYB"}
+  ]
+}

@@ -35,6 +35,7 @@ yarn-error.log*
 .uv-cache/
 .agents/
 .claude/
+.turing/
 
 # ---- Generated model output (regenerable by re-running the scripts) ----
 gate/corpus/
@@ -68,3 +69,6 @@ gate/q25-handoff/
 
 # ---- Generated repository bundles ----
 repomix-output.*
+
+archive/
+docs/

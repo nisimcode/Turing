@@ -7,7 +7,68 @@ a deliberately small JSON-schema-like subset for function argument lists.
 
 from __future__ import annotations
 
+import math
 import re
+
+TYPES = {"string", "integer", "number", "boolean", "array", "null"}
+SPEC_KEYS = {
+    "type", "enum", "minLength", "maxLength", "pattern",
+    "minimum", "maximum", "minItems", "maxItems", "items", "uniqueItems",
+}
+
+
+def validate_schema(schema: dict) -> list[str]:
+    """Validate the supported argument-schema subset before checking cases."""
+    if not isinstance(schema, dict):
+        return ["schema: expected an object"]
+    if set(schema) != {"args"} or not isinstance(schema.get("args"), list):
+        return ["schema: expected only an args array"]
+
+    errors = []
+
+    def visit(spec, path):
+        if not isinstance(spec, dict):
+            errors.append(f"{path}: schema is not an object")
+            return
+        unknown = sorted(set(spec) - SPEC_KEYS)
+        if unknown:
+            errors.append(f"{path}: unsupported keys: {', '.join(unknown)}")
+        kinds = spec.get("type")
+        kinds = kinds if isinstance(kinds, list) else [kinds]
+        if (
+            not kinds
+            or not all(isinstance(kind, str) and kind in TYPES for kind in kinds)
+        ):
+            errors.append(f"{path}: type must use {', '.join(sorted(TYPES))}")
+        if "enum" in spec and not isinstance(spec["enum"], list):
+            errors.append(f"{path}.enum: expected an array")
+        for key in ("minLength", "maxLength", "minItems", "maxItems"):
+            value = spec.get(key)
+            if key in spec and (
+                not isinstance(value, int) or isinstance(value, bool) or value < 0
+            ):
+                errors.append(f"{path}.{key}: expected a non-negative integer")
+        for key in ("minimum", "maximum"):
+            value = spec.get(key)
+            if key in spec and (
+                not isinstance(value, (int, float))
+                or isinstance(value, bool)
+                or not math.isfinite(value)
+            ):
+                errors.append(f"{path}.{key}: expected a finite number")
+        if "pattern" in spec:
+            try:
+                re.compile(spec["pattern"])
+            except (re.error, TypeError):
+                errors.append(f"{path}.pattern: expected a valid regex string")
+        if "uniqueItems" in spec and not isinstance(spec["uniqueItems"], bool):
+            errors.append(f"{path}.uniqueItems: expected a boolean")
+        if "items" in spec:
+            visit(spec["items"], f"{path}.items")
+
+    for index, spec in enumerate(schema["args"]):
+        visit(spec, f"schema.args[{index}]")
+    return errors
 
 
 def _type_ok(value, kind: str) -> bool:

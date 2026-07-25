@@ -1,0 +1,53 @@
+[build-system]
+requires = ["uv_build>=0.11.26,<0.12"]
+build-backend = "uv_build"
+
+[project]
+name = "turing-gate"
+version = "0.1.0"
+description = "Fail-closed verification for generated HTML/JavaScript tools"
+readme = "README.md"
+requires-python = ">=3.12"
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
+authors = [{name = "Nisim Levi"}]
+keywords = ["ai", "verification", "playwright", "generated-code"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Software Development :: Testing",
+]
+dependencies = [
+  "pillow>=10",
+  "playwright>=1.45",
+]
+
+[project.optional-dependencies]
+ai = ["anthropic>=0.40"]
+
+[project.scripts]
+turing-gate = "gate.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/nisimcode/Turing"
+Repository = "https://github.com/nisimcode/Turing"
+Issues = "https://github.com/nisimcode/Turing/issues"
+
+[tool.uv.build-backend]
+module-name = "gate"
+module-root = ""
+wheel-exclude = [
+  "gate/auto_vertical.py",
+  "gate/*_spec.py",
+  "gate/offline_*.py",
+  "gate/q26_economics.py",
+  "gate/review_cli.py",
+  "gate/verify_cli.py",
+  "gate/scaffold/**",
+  "gate/fixtures/**",
+  "gate/q25-handoff/**",
+  "gate/.llm-cache/**",
+  "gate/*.jsonl",
+  "gate/q26-results*.json",
+]

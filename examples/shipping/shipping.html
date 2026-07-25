@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Shipping calculator</title>
+  <style>
+    body { font: 16px system-ui; max-width: 36rem; margin: 3rem auto; }
+    input, button { padding: .6rem; }
+    #result { margin-top: 1rem; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Shipping calculator</h1>
+    <input id="total" type="number" value="99">
+    <button id="calculate">Calculate</button>
+    <div id="result">ready</div>
+  </main>
+  <script>
+    function calculateShipping(total) {
+      return total >= 100 ? 0 : 8;
+    }
+    window.__turing = { calculateShipping };
+    document.getElementById("calculate").onclick = () => {
+      const total = Number(document.getElementById("total").value);
+      document.getElementById("result").textContent =
+        `$${calculateShipping(total)}`;
+    };
+  </script>
+</body>
+</html>

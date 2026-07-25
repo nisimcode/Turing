@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Calculator division demo</title>
+  <style>
+    body { font: 16px system-ui; max-width: 42rem; margin: 3rem auto; }
+    input, button { padding: .6rem; }
+    #result { margin-top: 1rem; font-size: 1.4rem; }
+  </style>
+</head>
+<body>
+  <h1>Integer division calculator</h1>
+  <p>Division should truncate toward zero.</p>
+  <input id="expression" value="-7/2">
+  <button id="calculate">Calculate</button>
+  <div id="result">ready</div>
+  <script>
+    function evaluate(expression) {
+      const match = /^(-?\d+)\/(-?\d+)$/.exec(expression);
+      if (!match || Number(match[2]) === 0) throw new Error("invalid expression");
+      return Math.floor(Number(match[1]) / Number(match[2])); // BUG for negatives
+    }
+    window.__turing = { evaluate };
+    document.getElementById("calculate").onclick = () => {
+      document.getElementById("result").textContent =
+        String(evaluate(document.getElementById("expression").value));
+    };
+  </script>
+</body>
+</html>

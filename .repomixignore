@@ -12,6 +12,7 @@ node_modules/**
 **/.llm-cache/**
 .uv/**
 .venv/**
+.turing/**
 
 # Local runtime and generated review artifacts
 gate/telemetry.jsonl

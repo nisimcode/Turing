@@ -10,8 +10,10 @@ usually means the ensemble lacks tier diversity and literally cannot disagree.
 from __future__ import annotations
 
 import json
+import os
 import time
 from collections import Counter
+from pathlib import Path
 
 from .config import ROOT, get_logger
 
@@ -23,12 +25,18 @@ FLAG_RATE_CEILING = 0.60      # above this the spec is fighting the models
 FLAG_RATE_FLOOR = 0.005       # below this on a NEW vertical: suspicious
 
 
+def log_path():
+    override = os.environ.get("GATE_TELEMETRY_PATH")
+    return Path(override) if override else LOG_PATH
+
+
 def record(event: str, **fields) -> dict:
     """Append one event. Never raises -- telemetry must not break the gate."""
     row = {"ts": time.strftime("%Y-%m-%dT%H:%M:%S"), "event": event, **fields}
     try:
-        LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
-        with LOG_PATH.open("a", encoding="utf-8") as f:
+        target = log_path()
+        target.parent.mkdir(parents=True, exist_ok=True)
+        with target.open("a", encoding="utf-8") as f:
             f.write(json.dumps(row, default=str) + "\n")
     except OSError as exc:
         log.warning("telemetry write failed: %s", exc)
@@ -36,10 +44,11 @@ def record(event: str, **fields) -> dict:
 
 
 def read(vertical: str | None = None, event: str | None = None) -> list[dict]:
-    if not LOG_PATH.exists():
+    target = log_path()
+    if not target.exists():
         return []
     rows = []
-    for line in LOG_PATH.read_text(encoding="utf-8").splitlines():
+    for line in target.read_text(encoding="utf-8").splitlines():
         try:
             r = json.loads(line)
         except json.JSONDecodeError:
