@@ -12,7 +12,7 @@ with date AND time** (`YYYY-MM-DD HH:MM TZ`). Keep it terse. (Entries before
 
 ---
 
-## Current status (2026-07-26 00:49 JDT)
+## Current status (2026-07-26 01:00 JDT)
 
 A point-in-time snapshot — replaced wholesale on each update. The chronological
 record lives in *Milestones*; do not append history here.
@@ -25,7 +25,8 @@ auto-vertical work remains measured research, not the public product surface.
 
 **Where the code is.** Public repo `nisimcode/Turing` (branch `main`), licensed
 Apache 2.0 with releases `v0.1.0`, `v0.1.1` and `v0.1.2`; local `v0.2.0` is a
-native-GUI release candidate pending hosted CI. `gate/cli.py` exposes the
+native-GUI release candidate whose main-branch hosted matrix is green.
+`gate/cli.py` exposes the
 packaged `turing-gate` command; `gate/gui.py` is an optional PySide6 owner
 interface; `gate/core/manifest.py` binds a local artifact, browser hook, domain
 schema, and exact cases; `gate/core/verify.py` and `sandbox.py` provide the
@@ -50,6 +51,7 @@ installed wheel.
 | The final onboarding release is publicly fetchable | exact `v0.1.2` tag run `30175328116` passed Ubuntu in 2m30s and Windows in 2m55s; GitHub release includes wheel + sdist; refreshed HTTPS `uvx` resolved commit `b5f94e3` and reported version `0.1.2` |
 | A new user has one complete reference | `docs/user-manual.md` covers installation, first run, hooks, safe `init`, every manifest field/check, case design, JSON/exit semantics, CI, troubleshooting, privacy and limits; commands were checked against v0.1.2 help |
 | One owner can use the gate without authoring CLI JSON | optional PySide6 GUI discovered the confined artifact, entered two explicit cases, safely created `turing.json`, ran functional verification on a QThread, and rendered an `ACCEPTED` result with every check visible; headless regression and exact-wheel `ui --check` pass with API spend $0 |
+| The optional owner GUI works in fresh environments | corrected main run `30176621593` passed exact-wheel GUI diagnosis and the background Chromium owner workflow on Ubuntu in 2m44s and Windows in 3m18s, then reproduced 12/12 paired decisions and 27/27 mutant kills |
 | The public manifest path is stable across varied logic tools | paired `logic-tools-v1`: 6 domains / 12 subjects, 12/12 decisions, 0 false accepts/rejects, 6/6 diagnostics locally and in hosted run `30173955145`; local median/p95 1.453s/1.484s, Ubuntu 1.491s/2.069s, Windows 1.569s/1.908s |
 | The paired cases resist separately generated faults | six-domain mechanical challenge: initial 22/27 killed (81%); five survivors exposed missing email-anchor and bottom-row cases; distinct scored values raised the result to 27/27 (100%) while 22 validation probes remain exact-disjoint; hosted run `30174711088` reproduced 27/27 on Ubuntu and Windows |
 | The gate catches faults nobody here thought of | mutation score **100%**, 15/15 execution-validated mutants killed |
@@ -72,9 +74,10 @@ ones passed. Sell those as *working, accessible, complete* — never as *good*.
 licensing, local package, no-API manifest, three demonstrations, isolated-wheel
 smoke test, unified zero-credit regression, user manual, and optional native
 owner workflow are complete. The GUI itself has exercised one synthetic owned
-artifact but does not count as outside adoption. `v0.2.0` still needs the fresh
-Windows/Linux wheel run and exact-tag publication. Hosted runners remain only a
-setup proxy: unassisted onboarding and outside adoption are unproven.
+artifact but does not count as outside adoption. The fresh Windows/Linux wheel
+run is green; `v0.2.0` still needs exact-tag publication and reproduction.
+Hosted runners remain only a setup proxy: unassisted onboarding and outside
+adoption are unproven.
 
 **Standing caveats.** Sample sizes are small throughout (directional, not proof).
 The gate is a correctness check, **not a security boundary** — an arbitrary
@@ -86,10 +89,10 @@ failure** — three today (floor `has_dom`, fence-matching regex, mutation hook)
 each briefly masqueraded as a real finding. Verify surprising results before
 believing them.
 
-**Next action.** Commit and push the v0.2.0 GUI candidate; require the fresh
-Windows/Linux wheel workflow to pass, then tag and publish it. After that, use
-`turing-gate ui` on real owner artifacts. Do not add another internal benchmark
-or spend model credits before actual owner use supplies a concrete gap.
+**Next action.** Tag and publish v0.2.0, require the exact-tag Windows/Linux
+workflow to pass, then use `turing-gate ui` on real owner artifacts. Do not add
+another internal benchmark or spend model credits before actual owner use
+supplies a concrete gap.
 
 ---
 
@@ -165,6 +168,13 @@ or spend model credits before actual owner use supplies a concrete gap.
 
 ## Milestones completed
 
+- **2026-07-26 01:00 JDT** — **Native GUI reproduced in fresh Windows and
+  Linux environments.** Corrected run `30176621593` passed every exact-wheel,
+  package, GUI, browser and benchmark step: Ubuntu 2m44s, Windows 3m18s. Both
+  systems diagnosed the optional GUI from the built wheel, completed the
+  background functional owner workflow, caught 3/3 bundled defects, accepted
+  the generated/static manifests, made 12/12 paired decisions and killed 27/27
+  independently validated mutants. Exact-tag publication remains. → D62, D63.
 - **2026-07-26 00:56 JDT** — **First GUI clean-room run found two portable
   assumptions.** Run `30176458991` stopped Ubuntu at exact-wheel import because
   Qt needed `libEGL.so.1`; Windows passed import and all prior wheel checks, then
