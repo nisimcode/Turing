@@ -12,7 +12,7 @@ with date AND time** (`YYYY-MM-DD HH:MM TZ`). Keep it terse. (Entries before
 
 ---
 
-## Current status (2026-07-25 23:27 JDT)
+## Current status (2026-07-25 23:29 JDT)
 
 A point-in-time snapshot — replaced wholesale on each update. The chronological
 record lives in *Milestones*; do not append history here.
@@ -41,7 +41,8 @@ are excluded from the installed wheel.
 | The tagged release is publicly fetchable | refreshed `uvx --from git+https://github.com/nisimcode/Turing@v0.1.0 turing-gate demo` resolved public commit `0c04f61` and caught 3/3 defects |
 | The locked public/runtime Python dependency set is clean | experimental `uv audit`: 20 packages checked, no known vulnerabilities or adverse project statuses |
 | Setup failures are locally diagnosable | `turing-gate doctor`: 8/8 healthy-environment checks PASS; forced missing-browser path returns not-ready with exact repair command |
-| The wheel works in clean hosted environments | GitHub Actions run `30173582765`: Ubuntu install → doctor → demos → user example PASS in 36s; Windows PASS in 53s; no retries |
+| The wheel works in clean hosted environments | first main run `30173582765`: Ubuntu PASS in 36s, Windows PASS in 53s; exact `v0.1.1` tag run `30173641636`: Ubuntu PASS in 38s, Windows PASS in 54s; install → doctor → 3 demos → user example, no retries |
+| The new tagged CLI is publicly fetchable | refreshed HTTPS `uvx` resolved `v0.1.1` to commit `1b06f3f`; `doctor --json` passed all 8 setup checks |
 | The gate catches faults nobody here thought of | mutation score **100%**, 15/15 execution-validated mutants killed |
 | Auto-generated batteries have measured fault coverage | Caesar auto-battery mutation score **100%**, 5/5 execution-validated mutants killed over 498 independent probes |
 | Undefined inputs do not become false rejects | Q21 regression withheld 2/2 out-of-domain Luhn cases; correct implementation PASS, 0 false rejects |
@@ -158,7 +159,9 @@ false rejects, runtime, and diagnostic clarity. Hosted CI does not count toward
   runs doctor, catches 3/3 demos, and accepts the shipping example. The exact
   wheel and full zero-credit regression pass locally; 20 Python dependencies
   audit clean. First hosted matrix run `30173582765` passed without retries:
-  Ubuntu in 36s and Windows in 53s. → D56.
+  Ubuntu in 36s and Windows in 53s. The exact `v0.1.1` tag run also passed:
+  Ubuntu in 38s and Windows in 54s; refreshed public HTTPS install resolved
+  commit `1b06f3f` and passed doctor 8/8. → D56.
 - **2026-07-25 23:16 JDT** — **Public v0.1 release published.** Published the
   Apache-2.0 repository and GitHub release, attached the validated wheel and
   sdist, and pinned the no-clone README flow to immutable tag `v0.1.0`.
