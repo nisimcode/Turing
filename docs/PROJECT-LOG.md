@@ -12,7 +12,7 @@ with date AND time** (`YYYY-MM-DD HH:MM TZ`). Keep it terse. (Entries before
 
 ---
 
-## Current status (2026-07-26 00:25 JDT)
+## Current status (2026-07-26 00:49 JDT)
 
 A point-in-time snapshot — replaced wholesale on each update. The chronological
 record lives in *Milestones*; do not append history here.
@@ -24,11 +24,13 @@ requires no API key or hosted service. The earlier cascade, oracle, and
 auto-vertical work remains measured research, not the public product surface.
 
 **Where the code is.** Public repo `nisimcode/Turing` (branch `main`), licensed
-Apache 2.0 with releases `v0.1.0`, `v0.1.1` and `v0.1.2`. `gate/cli.py`
-exposes the packaged `turing-gate` command; `gate/core/manifest.py` binds a
-local artifact, browser hook, domain schema, and exact cases;
-`gate/core/verify.py` and `sandbox.py` provide the fail-closed runtime. The
-wheel includes only the CLI, core, and three bundled demonstrations.
+Apache 2.0 with releases `v0.1.0`, `v0.1.1` and `v0.1.2`; local `v0.2.0` is a
+native-GUI release candidate pending hosted CI. `gate/cli.py` exposes the
+packaged `turing-gate` command; `gate/gui.py` is an optional PySide6 owner
+interface; `gate/core/manifest.py` binds a local artifact, browser hook, domain
+schema, and exact cases; `gate/core/verify.py` and `sandbox.py` provide the
+fail-closed runtime. The default install remains CLI/core/demos only; selecting
+the `gui` extra adds PySide6 without duplicating gate logic.
 Model-assisted auto-vertical generation, review research, Q21-Q26 runners,
 and historical evidence stay in the source tree but are excluded from the
 installed wheel.
@@ -47,6 +49,7 @@ installed wheel.
 | The new tagged CLI is publicly fetchable | refreshed HTTPS `uvx` resolved `v0.1.1` to commit `1b06f3f`; `doctor --json` passed all 8 setup checks |
 | The final onboarding release is publicly fetchable | exact `v0.1.2` tag run `30175328116` passed Ubuntu in 2m30s and Windows in 2m55s; GitHub release includes wheel + sdist; refreshed HTTPS `uvx` resolved commit `b5f94e3` and reported version `0.1.2` |
 | A new user has one complete reference | `docs/user-manual.md` covers installation, first run, hooks, safe `init`, every manifest field/check, case design, JSON/exit semantics, CI, troubleshooting, privacy and limits; commands were checked against v0.1.2 help |
+| One owner can use the gate without authoring CLI JSON | optional PySide6 GUI discovered the confined artifact, entered two explicit cases, safely created `turing.json`, ran functional verification on a QThread, and rendered an `ACCEPTED` result with every check visible; headless regression and exact-wheel `ui --check` pass with API spend $0 |
 | The public manifest path is stable across varied logic tools | paired `logic-tools-v1`: 6 domains / 12 subjects, 12/12 decisions, 0 false accepts/rejects, 6/6 diagnostics locally and in hosted run `30173955145`; local median/p95 1.453s/1.484s, Ubuntu 1.491s/2.069s, Windows 1.569s/1.908s |
 | The paired cases resist separately generated faults | six-domain mechanical challenge: initial 22/27 killed (81%); five survivors exposed missing email-anchor and bottom-row cases; distinct scored values raised the result to 27/27 (100%) while 22 validation probes remain exact-disjoint; hosted run `30174711088` reproduced 27/27 on Ubuntu and Windows |
 | The gate catches faults nobody here thought of | mutation score **100%**, 15/15 execution-validated mutants killed |
@@ -64,15 +67,14 @@ checkable pure function (games, calculators, validators). Content/UI is
 **floor-only**: objective checks caught 5/5 structural defects but 2/2 subjective
 ones passed. Sell those as *working, accessible, complete* — never as *good*.
 
-**Defined pre-adoption engineering is complete for v0.1.2; adoption evidence =
-0/20 developers, 0/5 user-owned artifacts, 0/3 repeat users.** Apache
+**The v0.2.0 owner-GUI candidate is locally complete; adoption evidence =
+0/20 developers, 0/5 outside user-owned artifacts, 0/3 repeat users.** Apache
 licensing, local package, no-API manifest, three demonstrations, isolated-wheel
-smoke test, unified zero-credit regression, public repository, and tagged
-GitHub releases are complete. `doctor` and clean Windows/Linux wheel CI pass
-locally and on both fresh hosted runners. Hosted runners are only a setup
-proxy: unassisted onboarding and outside adoption remain unproven. Q25’s
-prepared human sample now applies only to the experimental auto-vertical path
-and does not block the deterministic public verifier.
+smoke test, unified zero-credit regression, user manual, and optional native
+owner workflow are complete. The GUI itself has exercised one synthetic owned
+artifact but does not count as outside adoption. `v0.2.0` still needs the fresh
+Windows/Linux wheel run and exact-tag publication. Hosted runners remain only a
+setup proxy: unassisted onboarding and outside adoption are unproven.
 
 **Standing caveats.** Sample sizes are small throughout (directional, not proof).
 The gate is a correctness check, **not a security boundary** — an arbitrary
@@ -84,10 +86,10 @@ failure** — three today (floor `has_dom`, fence-matching regex, mutation hook)
 each briefly masqueraded as a real finding. Verify surprising results before
 believing them.
 
-**Next action.** Begin the genuine outside 20/5/3 adoption test. The tagged
-v0.1.2 release, public fetch, onboarding flow, exact-tag clean-room matrix and
-all zero-credit checkpoints are complete. No further internal benchmark should
-delay that test.
+**Next action.** Commit and push the v0.2.0 GUI candidate; require the fresh
+Windows/Linux wheel workflow to pass, then tag and publish it. After that, use
+`turing-gate ui` on real owner artifacts. Do not add another internal benchmark
+or spend model credits before actual owner use supplies a concrete gap.
 
 ---
 
@@ -95,6 +97,7 @@ delay that test.
 
 | # | Date/time | Decision |
 |---|------|----------|
+| D62 | 2026-07-26 00:49 JDT | **Add one optional native owner interface without creating a second gate.** PySide6 is selected only through the `gui` extra; the base CLI stays dependency-light and lazily imports it. `turing-gate ui [folder]` discovers confined HTML artifacts, collects the hook/schema/cases, delegates safe publication to `create_starter_manifest()`, and delegates the verdict to `verify()` / `verify_manifest()` on a QThread. Existing manifests load only when they target the selected artifact; overwrite requires confirmation. “Check page only” remains visibly diagnostic. `ui --check` diagnoses the optional layer without opening a window. A headless regression proves lazy base import, discovery exclusions, JSON validation, two-case save, background Chromium verification and accepted-result rendering; exact built-wheel diagnosis passes with $0 API spend. Ship as v0.2.0 only after Windows/Linux clean-room reproduction. |
 | D61 | 2026-07-26 00:25 JDT | **Give users one task-oriented manual separate from the research and operator record.** `docs/user-manual.md` is the public v0.1.2 reference: setup, demonstration, own-artifact workflow, safe `init`, full manifest/schema fields, effective boundary cases, check/exit interpretation, CI, troubleshooting, privacy, browser containment and explicit non-guarantees. Keep `gate-operations.md` focused on operator policy and `PROJECT-LOG.md` focused on evidence/decisions. Link the manual prominently from README. |
 | D60 | 2026-07-26 00:13 JDT | **Finish pre-adoption engineering by removing manifest boilerplate without guessing correctness.** `turing-gate init` creates a version-1 manifest beside an existing confined HTML artifact. Functional mode requires an explicit hook and JSON cases; otherwise the result is prominently runtime-only. Validate through the production loader before atomic publication, refuse overwrite unless `--force`, and leave no partial file on invalid JSON/schema/path. The public regression covers runtime-only and functional success plus overwrite, malformed-constant and path-escape failures. The independently validated mutation benchmark now also self-tests missing markers, missing probe domains and probe/scored-case contamination before browser execution. Ship this bounded onboarding/harness improvement as v0.1.2, then stop substituting internal work for adoption evidence. |
 | D59 | 2026-07-25 23:59 JDT | **A zero-API path must not import optional model dependencies.** The first hosted mechanical-benchmark run (`30174575349`) passed wheel setup and the paired benchmark on both OSes, then failed before mutation execution because `core.mutation` eagerly imported `core.llm` and therefore `anthropic`. Move that import inside `validated_mutants()`, the only paid generation path. A forced-SDK-unavailable import, Q24, and the 27/27 mechanical challenge pass locally; corrected hosted run `30174711088` then reproduced 27/27 on both OSes. |
@@ -161,6 +164,16 @@ delay that test.
 
 ## Milestones completed
 
+- **2026-07-26 00:49 JDT** — **Optional native owner GUI completed locally.**
+  Added `turing-gate ui` as a lazy PySide6 extra with project/artifact
+  selection, explicit hook/domain/case entry, safe manifest replacement, page
+  diagnostics, background functional verification and readable check results.
+  The offscreen owner workflow created and accepted a two-case adder contract;
+  exact v0.2.0 wheel version, `ui --check`, and 3/3 packaged demos pass. The
+  full zero-credit checkpoint passed in 196.4s: 12/12 paired decisions, 27/27
+  independently validated mutants and all Q21-Q26 controls, with $0 API spend.
+  Visual QA at 1240×820 is readable. Windows/Linux hosted reproduction and
+  release publication remain. → D62.
 - **2026-07-26 00:25 JDT** — **Public user manual completed.** Added one
   task-oriented v0.1.2 guide covering installation through CI and
   troubleshooting, with the manifest/schema/check reference and honest scope
@@ -734,7 +747,9 @@ delay that test.
 
 **`gate/`** — current verticals, CLIs, and regressions only.
 - `cli.py` — packaged no-API
-  `turing-gate` init/verify/demo/doctor/install-browser command.
+  `turing-gate` ui/init/verify/demo/doctor/install-browser command.
+- `gui.py` — optional PySide6 owner interface over the existing manifest and
+  verifier boundaries; no independent correctness logic.
 - `demos/` — bundled Wordle, calculator, and exfiltration demonstrations.
 - Per vertical: a scaffold in `scaffold/` + a `*_spec.py` (`wordle`, `game2048`,
   `billsplit`, `calc`).
@@ -749,7 +764,7 @@ delay that test.
   narrower `offline_q21_check.py`, `offline_q24_check.py`,
   `offline_q25_check.py`, `offline_q26_check.py`,
   `offline_benchmark_check.py`, `offline_benchmark_mutation_check.py`,
-  `offline_manifest_check.py`,
+  `offline_manifest_check.py`, `offline_gui_check.py`,
   `offline_review_check.py`, and
   `offline_lifecycle_check.py` compose into it.
 - `q25-handoff/` — generated eligible-only reviewer UIs and immutable dossiers;
@@ -777,12 +792,14 @@ instructions, and interpretation limits.
 and `pnpm-lock.yaml`.
 `.env` holds `CLAUDE_API_KEY` and is gitignored — never commit it.
 
-**`docs/user-manual.md`** — public v0.1.2 installation, artifact/manifest,
-case-design, results, CI, troubleshooting, privacy, and limits guide.
+**`docs/user-manual.md`** — public v0.2.0 installation, native GUI,
+artifact/manifest, case-design, results, CI, troubleshooting, privacy, and
+limits guide.
 
-**Public path:** `uv run turing-gate install-browser`, confirm with
-`uv run turing-gate doctor`, then
-`uv run turing-gate demo` or `uv run turing-gate verify turing.json`.
+**Public owner path:** install `".[gui]"` once, run
+`turing-gate install-browser`, confirm with `turing-gate doctor`, then use
+`turing-gate ui`. **CLI/CI path:** `uv run turing-gate demo` or
+`uv run turing-gate verify turing.json`.
 **Full research regression:** `uv run --extra ai python gate/offline_all_check.py`.
 Repository snapshots use `pnpm install --frozen-lockfile --ignore-scripts`
 followed by `pnpm repomix`; the generated XML is gitignored.

@@ -27,7 +27,24 @@ privacy, and the verifier’s limits.
 Requirements: Python 3.12+ and
 [`uv`](https://docs.astral.sh/uv/getting-started/installation/).
 
-From a clone:
+For the shortest daily command, clone once and install the optional native GUI:
+
+```bash
+git clone https://github.com/nisimcode/Turing.git
+cd Turing
+uv tool install ".[gui]"
+turing-gate install-browser
+turing-gate doctor
+turing-gate ui
+```
+
+After that, normal use starts with `turing-gate ui`. Choose a project folder,
+select its self-contained HTML file, enter the browser hook and expected cases,
+then use **Save and verify**. The interface writes the same reviewable
+`turing.json` used by the CLI. **Check page only** is diagnostic and never
+claims functional correctness.
+
+The GUI is optional. The dependency-light CLI path from a clone is:
 
 ```bash
 uv run turing-gate install-browser
@@ -50,9 +67,16 @@ the intended defect is caught.
 Run the tagged release without cloning:
 
 ```bash
-uvx --from git+https://github.com/nisimcode/Turing@v0.1.2 turing-gate install-browser
-uvx --from git+https://github.com/nisimcode/Turing@v0.1.2 turing-gate doctor
-uvx --from git+https://github.com/nisimcode/Turing@v0.1.2 turing-gate demo
+uv tool install "turing-gate[gui] @ git+https://github.com/nisimcode/Turing@v0.2.0"
+turing-gate install-browser
+turing-gate doctor
+turing-gate ui
+```
+
+For a non-GUI one-off:
+
+```bash
+uvx --from git+https://github.com/nisimcode/Turing@v0.2.0 turing-gate COMMAND
 ```
 
 ## Verify your own artifact
@@ -219,14 +243,16 @@ Build and validate the distributable package:
 
 ```bash
 uv build --no-sources
-uvx --from dist/turing_gate-0.1.2-py3-none-any.whl turing-gate doctor
-uvx --from dist/turing_gate-0.1.2-py3-none-any.whl turing-gate demo
+uvx --from dist/turing_gate-0.2.0-py3-none-any.whl turing-gate doctor
+uvx --from dist/turing_gate-0.2.0-py3-none-any.whl turing-gate demo
 ```
 
 The `Clean-room package` GitHub Actions workflow repeats the wheel-based flow on
 fresh Windows and Linux runners: install Chromium, run `doctor`, catch all three
-bundled defects, and accept the shipping example. This is a reproducible setup
-proxy, not evidence that an outside developer wants or understands the tool.
+bundled defects, accept the shipping example, diagnose the optional GUI from the
+exact wheel, and exercise the GUI owner workflow headlessly. This is a
+reproducible setup proxy, not evidence that an outside developer wants or
+understands the tool.
 
 Run the paired multi-domain regression benchmark:
 
@@ -278,7 +304,8 @@ The 30-day validation target is:
 
 | Path | Purpose |
 |---|---|
-| `gate/cli.py` | Public `turing-gate` init/verify/demo/doctor CLI |
+| `gate/cli.py` | Public `turing-gate` UI/init/verify/demo/doctor CLI |
+| `gate/gui.py` | Optional PySide6 owner interface over the same core |
 | `gate/core/starter.py` | Validated, atomic starter-manifest creation |
 | `gate/core/manifest.py` | Versioned user manifest validation and execution |
 | `gate/core/verify.py` | Runtime + functional verification entry point |

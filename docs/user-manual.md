@@ -1,6 +1,6 @@
 # Turing Gate user manual
 
-This manual covers Turing Gate v0.1.2, a local verifier for generated,
+This manual covers Turing Gate v0.2.0, a local verifier for generated,
 self-contained HTML/JavaScript tools.
 
 Turing Gate answers a narrow question:
@@ -15,16 +15,17 @@ quality. It requires no model, API key, account, or hosted service.
 
 1. [How the gate works](#how-the-gate-works)
 2. [Installation](#installation)
-3. [Five-minute first run](#five-minute-first-run)
-4. [Verify your own artifact](#verify-your-own-artifact)
-5. [Create a manifest with `init`](#create-a-manifest-with-init)
-6. [Manifest reference](#manifest-reference)
-7. [Writing effective cases](#writing-effective-cases)
-8. [Understanding results](#understanding-results)
-9. [Automation and CI](#automation-and-ci)
-10. [Troubleshooting](#troubleshooting)
-11. [Privacy, security, and limits](#privacy-security-and-limits)
-12. [Command reference](#command-reference)
+3. [Native desktop GUI](#native-desktop-gui)
+4. [Five-minute first run](#five-minute-first-run)
+5. [Verify your own artifact](#verify-your-own-artifact)
+6. [Create a manifest with `init`](#create-a-manifest-with-init)
+7. [Manifest reference](#manifest-reference)
+8. [Writing effective cases](#writing-effective-cases)
+9. [Understanding results](#understanding-results)
+10. [Automation and CI](#automation-and-ci)
+11. [Troubleshooting](#troubleshooting)
+12. [Privacy, security, and limits](#privacy-security-and-limits)
+13. [Command reference](#command-reference)
 
 ## How the gate works
 
@@ -59,39 +60,100 @@ error, or attempted external request cannot produce an acceptance.
 
 ### From a repository clone
 
+To install the native GUI as a command you can use from any folder:
+
 ```bash
 git clone https://github.com/nisimcode/Turing.git
 cd Turing
-uv run turing-gate install-browser
-uv run turing-gate doctor
+uv tool install ".[gui]"
+turing-gate install-browser
+turing-gate doctor
 ```
 
 On Linux, install Chromium and its operating-system libraries together:
 
 ```bash
-uv run turing-gate install-browser --with-deps
+turing-gate install-browser --with-deps
 ```
+
+The core CLI does not require PySide6. For source development without the GUI,
+use `uv run turing-gate COMMAND` from the clone.
 
 ### Use the tagged release without cloning
 
 ```bash
-uvx --from git+https://github.com/nisimcode/Turing@v0.1.2 turing-gate install-browser
-uvx --from git+https://github.com/nisimcode/Turing@v0.1.2 turing-gate doctor
+uv tool install "turing-gate[gui] @ git+https://github.com/nisimcode/Turing@v0.2.0"
+turing-gate install-browser
+turing-gate doctor
 ```
 
 Use `--with-deps` on the `install-browser` command when required on Linux.
+For one-off CLI use without installing the GUI:
+
+```bash
+uvx --from git+https://github.com/nisimcode/Turing@v0.2.0 turing-gate doctor
+```
 
 ### Confirm the installed version
 
 ```bash
-uv run turing-gate --version
+turing-gate --version
 ```
 
 Expected output:
 
 ```text
-0.1.2
+0.2.0
 ```
+
+## Native desktop GUI
+
+Start the installed interface from the folder containing your project:
+
+```bash
+turing-gate ui
+```
+
+Or give it the project folder explicitly:
+
+```bash
+turing-gate ui path/to/project
+```
+
+The interface is one owner workflow:
+
+1. Choose a project folder.
+2. Select a discovered `.html` or `.htm` artifact.
+3. Enter a name, optional description, and dotted browser hook.
+4. Optionally enter the argument-domain schema and numeric tolerance.
+5. Add ordinary and boundary cases. Arguments must be a JSON array; the
+   expected result may be any JSON value.
+6. Select **Save and verify**.
+7. Accept only an `ACCEPTED` result with every listed check passing.
+
+The GUI creates `turing.json` beside the selected artifact. If a valid sibling
+manifest already points to that artifact, the GUI loads it. Replacing an
+existing manifest requires confirmation.
+
+**Check page only** runs loading, visible-page, interaction, error, and
+containment checks without saving a functional contract. A pass there does not
+mean the calculations, validators, formatters, or game rules are correct.
+
+The GUI never invents a hook or expected value and never calls a model API. It
+runs the same manifest loader and Chromium verifier as the CLI, in a background
+worker so the window remains responsive. Hidden directories and common
+generated trees such as `.git`, `.venv`, `node_modules`, `build`, and `dist`
+are skipped during artifact discovery.
+
+To diagnose only the optional dependency and folder scan without opening a
+window:
+
+```bash
+turing-gate ui --check .
+```
+
+Automation should continue to use `turing-gate verify ... --json`; the GUI is
+an owner convenience layer, not a second verification engine.
 
 ## Five-minute first run
 
@@ -514,6 +576,17 @@ reviewed manifest so an existing contract cannot be silently replaced.
 
 ## Troubleshooting
 
+### `GUI support is not installed`
+
+The base package intentionally excludes the large Qt dependency. From a clone,
+install or refresh the optional GUI tool once:
+
+```bash
+uv tool install --force ".[gui]"
+```
+
+Then run `turing-gate ui --check .` before opening the window.
+
 ### `Browser missing`
 
 Run:
@@ -664,6 +737,14 @@ turing-gate --version
 turing-gate --help
 ```
 
+### Open the native GUI
+
+```bash
+turing-gate ui
+turing-gate ui PROJECT_FOLDER
+turing-gate ui --check PROJECT_FOLDER
+```
+
 ### Create a manifest
 
 ```bash
@@ -733,4 +814,4 @@ Project repository:
 [github.com/nisimcode/Turing](https://github.com/nisimcode/Turing)
 
 Release:
-[Turing Gate v0.1.2](https://github.com/nisimcode/Turing/releases/tag/v0.1.2)
+[Turing Gate v0.2.0](https://github.com/nisimcode/Turing/releases/tag/v0.2.0)

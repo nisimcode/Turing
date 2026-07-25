@@ -34,6 +34,14 @@ uv run turing-gate init tool.html
 uv run turing-gate verify turing.json
 ```
 
+For a single owner who prefers a native interface, the supported optional layer
+is `uv tool install ".[gui]"` followed by `turing-gate ui`. The PySide6 window
+only discovers confined HTML artifacts, collects explicit contract fields,
+calls the production manifest creator, and runs the same verifier in a
+background thread. It is not a second gate. **Save and verify** is the
+functional path; **Check page only** remains explicitly diagnostic. The base
+CLI and wheel installation do not pull Qt unless the `gui` extra is selected.
+
 On Linux, `turing-gate install-browser --with-deps` also installs Playwright's
 required operating-system libraries. `doctor` makes no model/API calls and
 tests Python/package discovery, the local telemetry directory, loopback
@@ -65,8 +73,10 @@ as part of the dependable public workflow.
 
 `.github/workflows/clean-room.yml` builds the wheel and exercises this public
 path on fresh Windows and Linux GitHub-hosted runners for every push and pull
-request. It is a clean-environment installation proxy only. It does not replace
-unassisted onboarding or count toward the 20/5/3 outside-adoption target.
+request. It also imports the exact wheel with PySide6, runs `ui --check`, and
+completes the GUI owner workflow headlessly through real Chromium. It is a
+clean-environment installation proxy only. It does not replace unassisted
+onboarding or count toward the 20/5/3 outside-adoption target.
 
 The same workflow runs `gate/offline_benchmark_check.py` against the paired
 logic-tool corpus in `benchmarks/`. Release confidence requires all correct

@@ -143,6 +143,36 @@ def _install_browser(args) -> int:
     ).returncode
 
 
+def _ui(args) -> int:
+    try:
+        from .gui import discover_artifacts, launch_gui
+    except ImportError as exc:
+        if exc.name == "PySide6" or str(exc).startswith("No module named 'PySide6"):
+            print(
+                "GUI support is not installed.\n"
+                "From a clone, install once with: uv tool install '.[gui]'",
+                file=sys.stderr,
+            )
+            return 2
+        raise
+    if args.check:
+        root = Path(args.directory).resolve()
+        artifacts = discover_artifacts(root)
+        print(
+            json.dumps(
+                {
+                    "ready": True,
+                    "project": str(root),
+                    "html_artifacts": len(artifacts),
+                },
+                ensure_ascii=False,
+                indent=2,
+            )
+        )
+        return 0
+    return launch_gui(args.directory)
+
+
 def _init(args) -> int:
     result = create_starter_manifest(
         args.artifact,
@@ -184,6 +214,22 @@ def _parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--version", action="version", version=_version())
     sub = parser.add_subparsers(dest="command", required=True)
+
+    ui = sub.add_parser(
+        "ui", help="open the optional native desktop interface"
+    )
+    ui.add_argument(
+        "directory",
+        nargs="?",
+        default=".",
+        help="project folder to scan for HTML files (default: current folder)",
+    )
+    ui.add_argument(
+        "--check",
+        action="store_true",
+        help="confirm GUI dependencies and project discovery without opening it",
+    )
+    ui.set_defaults(run=_ui)
 
     initializing = sub.add_parser(
         "init",
